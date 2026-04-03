@@ -26,6 +26,24 @@
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
+        /* Новые плавные анимации для статусов */
+        @keyframes slideOutStatus {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0.9) translateY(-30px); pointer-events: none; }
+        }
+        @keyframes scaleUpFade {
+            0% { opacity: 0; transform: scale(0.5); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        @keyframes textReveal {
+            0% { opacity: 0; transform: translateY(20px); letter-spacing: 0px; }
+            100% { opacity: 1; transform: translateY(0); letter-spacing: 4px; }
+        }
+
+        .anim-hide { animation: slideOutStatus 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .anim-show { display: block !important; animation: scaleUpFade 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .anim-text { animation: textReveal 0.9s ease-out forwards; animation-delay: 0.2s; opacity: 0; }
+
         .hidden { display: none !important; }
         .fade-out { opacity: 0; pointer-events: none; transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
         
@@ -201,19 +219,29 @@
     </div>
     
     <div id="statusModal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3>Ожидаем менеджера...</h3><p>Пожалуйста, не закрывайте страницу.</p></div>
-            <div id="successBox" class="hidden">
+        <div class="modal-content" style="position: relative; overflow: hidden; min-height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div id="waitBox" style="position: absolute; width: 100%; text-align: center;">
+                <i class="fa-solid fa-compass loader-icon"></i>
+                <h3>Ожидаем менеджера...</h3>
+                <p>Пожалуйста, не закрывайте страницу.</p>
+            </div>
+            
+            <div id="successBox" class="hidden" style="position: absolute; width: 100%; text-align: center;">
                 <i class="fa-solid fa-crown" style="font-size:5rem; color:var(--gold); animation:bounce 2s infinite;"></i>
-                <h2 style="color:#27ae60; margin:20px 0;">ЗАКАЗ ОДОБРЕН!</h2>
-                <div style="background:#f9f9f9; padding:25px; border-radius:25px; text-align:left; margin-bottom:25px;">
+                <h2 id="successText" style="color:#27ae60; margin:20px 0;">ЗАКАЗ ОДОБРЕН!</h2>
+                <div style="background:#f9f9f9; padding:25px; border-radius:25px; text-align:left; margin-bottom:25px; display: inline-block; width: 100%;">
                     <p>💳 Оплата: СБП по номеру</p>
                     <p>📞 Телефон: +7(912) 042-69-38</p>
                     <p>👤 Владелец: Долгов А.А.</p>
                 </div>
-                <a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none;">Написать в Telegram</a>
+                <a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none; display: block;">Написать в Telegram</a>
             </div>
-            <div id="rejectedBox" class="hidden"><i class="fa-solid fa-circle-xmark" style="font-size:5rem; color:#e74c3c;"></i><h2 style="margin:20px 0;">ОТКЛОНЕНО</h2><a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none;">Связаться с нами</a></div>
+            
+            <div id="rejectedBox" class="hidden" style="position: absolute; width: 100%; text-align: center;">
+                <i class="fa-solid fa-circle-xmark" style="font-size:5rem; color:#e74c3c;"></i>
+                <h2 id="rejectText" style="margin:20px 0;">ОТКЛОНЕНО</h2>
+                <a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none; display: block;">Связаться с нами</a>
+            </div>
         </div>
     </div>
 
@@ -330,21 +358,48 @@
             let groups = {}; cart.forEach(p => groups[p.name] = (groups[p.name]||0)+1);
             let list = Object.entries(groups).map(([n, c]) => `${n}: ${c}шт`).join(', ');
 
+            // Сброс классов перед новым заказом
+            document.getElementById('waitBox').className = '';
+            document.getElementById('successBox').className = 'hidden';
+            document.getElementById('rejectedBox').className = 'hidden';
+            document.getElementById('successText').className = '';
+            document.getElementById('rejectText').className = '';
+
             document.getElementById('cartBox').classList.remove('open');
             document.getElementById('statusModal').classList.add('active');
 
             const es = new EventSource(`https://ntfy.sh/dolwall_order_${oid}/sse`);
             activeEventSource = es;
+            
             es.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 if(data.message === 'approved') {
-                    document.getElementById('waitBox').classList.add('hidden');
-                    document.getElementById('successBox').classList.remove('hidden');
-                    cart=[]; updateCartUI(); es.close();
+                    // Анимация клиента: ОДОБРЕНО
+                    const waitBox = document.getElementById('waitBox');
+                    waitBox.classList.add('anim-hide');
+                    
+                    setTimeout(() => {
+                        waitBox.classList.add('hidden');
+                        const successBox = document.getElementById('successBox');
+                        successBox.classList.remove('hidden');
+                        successBox.classList.add('anim-show');
+                        document.getElementById('successText').classList.add('anim-text');
+                        cart=[]; updateCartUI(); es.close();
+                    }, 500); // Ждем пока иконка загрузки улетит
+
                 } else if(data.message === 'rejected') {
-                    document.getElementById('waitBox').classList.add('hidden');
-                    document.getElementById('rejectedBox').classList.remove('hidden');
-                    es.close();
+                    // Анимация клиента: ОТКЛОНЕНО
+                    const waitBox = document.getElementById('waitBox');
+                    waitBox.classList.add('anim-hide');
+                    
+                    setTimeout(() => {
+                        waitBox.classList.add('hidden');
+                        const rejectedBox = document.getElementById('rejectedBox');
+                        rejectedBox.classList.remove('hidden');
+                        rejectedBox.classList.add('anim-show');
+                        document.getElementById('rejectText').classList.add('anim-text');
+                        es.close();
+                    }, 500);
                 }
             };
 
@@ -356,6 +411,7 @@
             await fetch(`${BARK_API_URL}/${BARK_DEVICE_KEY}/${title}/${body}?url=${call}`, { mode:'no-cors' });
         }
 
+        // Логика панели менеджера (Без Alert, с плавной анимацией)
         function showManagerPanel(oid, encoded) {
             let det = JSON.parse(decodeURIComponent(encoded));
             let items = det.i.split(', ').map(s => {
@@ -365,9 +421,10 @@
             });
 
             const m = document.createElement('div');
-            m.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); backdrop-filter:blur(30px); z-index:20000; display:flex; justify-content:center; align-items:center;';
+            m.id = "mgrPanelOverlay";
+            m.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); backdrop-filter:blur(30px); z-index:20000; display:flex; justify-content:center; align-items:center; transition: opacity 0.6s ease;';
             m.innerHTML = `
-                <div style="background:#0c0c0c; color:#fff; border-radius:50px; width:92%; max-width:550px; padding:40px; border:1px solid var(--gold); text-align:center;">
+                <div id="mgrPanelInner" style="background:#0c0c0c; color:#fff; border-radius:50px; width:92%; max-width:550px; padding:40px; border:1px solid var(--gold); text-align:center; transition: all 0.5s;">
                     <h2 style="color:var(--gold);">ЗАКАЗ #${oid}</h2>
                     <div style="background:#111; padding:20px; border-radius:25px; margin:20px 0; text-align:left; font-size:0.9rem;">
                         <p>👤 <b>${det.n}</b></p><p>📞 ${det.p}</p><p>📍 ${det.a}</p>
@@ -382,13 +439,43 @@
                     </div>
                     <h3 style="margin-bottom:30px; font-size:1.8rem;">${det.s.toLocaleString()} ₽</h3>
                     <div style="display:flex; gap:15px;">
-                        <button onclick="mgrAction('${oid}', 'approved')" style="flex:1; padding:18px; border-radius:25px; background:var(--gold); border:none; font-weight:900;">ОДОБРИТЬ</button>
-                        <button onclick="mgrAction('${oid}', 'rejected')" style="flex:1; padding:18px; border-radius:25px; background:transparent; border:2px solid #ff4757; color:#ff4757;">ОТКЛОНИТЬ</button>
+                        <button onclick="mgrAction('${oid}', 'approved')" style="flex:1; padding:18px; border-radius:25px; background:var(--gold); border:none; font-weight:900; cursor:pointer;">ОДОБРИТЬ</button>
+                        <button onclick="mgrAction('${oid}', 'rejected')" style="flex:1; padding:18px; border-radius:25px; background:transparent; border:2px solid #ff4757; color:#ff4757; cursor:pointer;">ОТКЛОНИТЬ</button>
                     </div>
                 </div>`;
             document.body.appendChild(m);
         }
-        window.mgrAction = (id, st) => fetch(`https://ntfy.sh/dolwall_order_${id}`, { method:'POST', body:st }).then(()=>location.href=location.origin+location.pathname);
+
+        // Анимация в панели менеджера при нажатии кнопки вместо alert и резкого обновления
+        window.mgrAction = (id, st) => {
+            const innerPanel = document.getElementById('mgrPanelInner');
+            
+            // Заменяем содержимое панели на красивый анимированный статус
+            if(st === 'approved') {
+                innerPanel.innerHTML = `
+                    <i class="fa-solid fa-check-circle" style="font-size:6rem; color:#27ae60; animation: scaleUpFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;"></i>
+                    <h2 class="anim-text" style="margin-top:20px; color:#27ae60;">УСПЕШНО ОДОБРЕНО</h2>
+                    <p style="margin-top:10px; color:#aaa;">Система уведомляет клиента...</p>
+                `;
+            } else {
+                innerPanel.innerHTML = `
+                    <i class="fa-solid fa-times-circle" style="font-size:6rem; color:#e74c3c; animation: scaleUpFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;"></i>
+                    <h2 class="anim-text" style="margin-top:20px; color:#e74c3c;">ЗАКАЗ ОТКЛОНЕН</h2>
+                    <p style="margin-top:10px; color:#aaa;">Система закрывает сделку...</p>
+                `;
+            }
+
+            // Отправляем хук и плавно перезагружаем
+            fetch(`https://ntfy.sh/dolwall_order_${id}`, { method:'POST', body:st }).then(() => {
+                setTimeout(() => {
+                    const overlay = document.getElementById('mgrPanelOverlay');
+                    overlay.style.opacity = '0'; // Плавно гасим весь экран менеджера
+                    setTimeout(() => {
+                        location.href = location.origin + location.pathname; // Чистим URL от параметров
+                    }, 600);
+                }, 1800); // Даем менеджеру 1.8 секунды насладиться анимацией
+            });
+        };
 
         function startSystem() { document.getElementById('introScreen').classList.add('fade-out'); setTimeout(() => { document.getElementById('introScreen').style.display='none'; document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); }, 1200); }
         function renderCatalog() {
