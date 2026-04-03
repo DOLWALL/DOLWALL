@@ -113,10 +113,19 @@
             border-left: 8px solid var(--gold); font-weight: 600;
         }
         .loader-icon { font-size: 5rem; color: var(--gold); margin-bottom: 35px; animation: rotate 2s linear infinite; }
+        .header-buttons { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .nav-btn {
+            background: transparent; border: 1.5px solid var(--gold); color: var(--primary);
+            padding: 10px 22px; border-radius: 40px; font-weight: 700; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(5px);
+        }
+        .nav-btn:hover { background: var(--gold); color: white; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(193,155,86,0.3); }
         @media (max-width: 768px) {
             .cart-sidebar { width: 100%; }
             .intro-logo { font-size: 2.8rem; letter-spacing: 8px; }
             .modal-content { padding: 40px 25px; }
+            .header-buttons { gap: 8px; }
+            .nav-btn { padding: 6px 14px; font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -139,9 +148,13 @@
     <div id="mainUI" class="hidden">
         <header>
             <div class="header-logo" style="cursor:pointer;" onclick="location.reload()">DOL<span>WALL</span></div>
-            <button class="intro-btn" style="padding:12px 30px; font-size:0.95rem;" onclick="toggleCart()">
-                <i class="fa-solid fa-bag-shopping"></i> Корзина (<span id="cartCount">0</span>)
-            </button>
+            <div class="header-buttons">
+                <button class="nav-btn" onclick="openSupportModal()"><i class="fa-regular fa-circle-question"></i> Поддержка</button>
+                <button class="nav-btn" onclick="openCompanyModal()"><i class="fa-regular fa-building"></i> О компании</button>
+                <button class="intro-btn" style="padding:10px 24px; font-size:0.9rem;" onclick="toggleCart()">
+                    <i class="fa-solid fa-bag-shopping"></i> Корзина (<span id="cartCount">0</span>)
+                </button>
+            </div>
         </header>
         <div class="hero">
             <h1 style="font-size:clamp(2.5rem,8vw,4.5rem); margin-bottom:20px; font-weight:900; letter-spacing:-2px;">ГИБКИЙ МРАМОР</h1>
@@ -170,19 +183,59 @@
         </div>
     </div>
 
+    <div id="supportModal" class="modal-overlay">
+        <div class="modal-content">
+            <i class="fa-regular fa-message" style="font-size:4rem; color:var(--gold); margin-bottom:20px;"></i>
+            <h2 style="font-size:2rem; font-weight:900; margin-bottom:15px;">Служба поддержки</h2>
+            <p style="margin-bottom:25px; color:#555;">Свяжитесь с нами любым удобным способом</p>
+            <div style="background:#f5f5f5; border-radius:30px; padding:25px; text-align:left; margin-bottom:30px;">
+                <p style="margin-bottom:20px; font-size:1.2rem;"><i class="fa-brands fa-telegram" style="color:#26A5E4; width:32px;"></i> Telegram: <strong>@EliteArchangel</strong><br><a href="https://t.me/EliteArchangel" target="_blank" style="color:var(--gold); text-decoration:none;">Написать в Telegram →</a></p>
+                <p style="font-size:1.2rem;"><i class="fa-solid fa-phone" style="color:var(--gold); width:32px;"></i> Телефон: <strong>+7(999) 561-45-25</strong><br><a href="tel:+79995614525" style="color:var(--gold); text-decoration:none;">Позвонить сейчас</a></p>
+            </div>
+            <button class="intro-btn" style="background:#000; color:#fff; border:none; padding:14px 30px;" onclick="closeSupportModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="companyModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 650px; text-align:left; max-height: 85vh; overflow-y: auto;">
+            <div style="text-align:center; margin-bottom:20px;"><i class="fa-regular fa-gem" style="font-size:3rem; color:var(--gold);"></i><h2 style="font-size:2rem; font-weight:900;">О компании DolWall</h2></div>
+            <div style="line-height:1.5; color:#1e1e1e;">
+                <p style="margin-bottom:20px; font-weight:600;">Мы производим и продаём декоративные пластиковые панели, которые подходят для любого интерьера — от уютной спальни до коммерческого офиса. Мы отобрали для шоурума самые трендовые глянцевые и матовые расцветки — именно те, которые чаще всего выбирают.</p>
+                <p style="margin-bottom:20px;">Наши панели называют <strong>«гибким мрамором»</strong> за эффектную фактуру и простоту монтажа. Материал не поддерживает горение, влагостойкий, скрывает неровности стен, а каждая панель покрыта защитной плёнкой, чтобы не повредить рисунок при установке или перевозке. Одна панель занимает 3,4 м², а для установки потребуется лишь жидкие гвозди либо монтажный клей.</p>
+                <hr style="margin:25px 0; border-color:#eee;">
+                <h3 style="font-size:1.4rem; font-weight:800; margin-bottom:12px;">📐 Характеристики панели:</h3>
+                <ul style="margin-bottom:25px; padding-left:20px;">
+                    <li>Размер: 1.22 × 2.80 м</li>
+                    <li>Толщина: 3 мм</li>
+                    <li>Площадь одного листа: 3,4 м²</li>
+                    <li>Формат поставки: плоские листы</li>
+                    <li>Вес: 19 кг (5–6 кг/м²)</li>
+                </ul>
+                <h3 style="font-size:1.4rem; font-weight:800; margin-bottom:12px;">✨ Преимущества:</h3>
+                <ul style="margin-bottom:25px; padding-left:20px;">
+                    <li>Легкий монтаж: клеится на бетон, гипс, МДФ, дерево</li>
+                    <li>Не боится влаги и перепадов температуры, не поддерживает горение</li>
+                    <li>Подходит для стен, колонн, мебели, ванных комнат, офисов, ресепшен-зон, ТВ-зон, коридоров, медицинских центров, салонов, бань, бассейнов, фото-зон</li>
+                    <li>Более 25 эксклюзивных текстур под натуральный камень, бетон, дерево, мрамор</li>
+                    <li>Без пыли и выравнивания, не требует особой подготовки стен. Крепятся на жидкие гвозди и любой вид строительного клея</li>
+                    <li>Материал влагостойкий — идеален для санузла и кухни</li>
+                </ul>
+                <p><strong>Универсальное решение:</strong> дом, дача, офис, клиника, магазин, салон. Гибкий мрамор — вдохновение для вашего интерьера.</p>
+            </div>
+            <button class="intro-btn" style="margin-top:35px; background:#000; color:#fff; border:none; width:100%;" onclick="closeCompanyModal()">Закрыть</button>
+        </div>
+    </div>
+
     <script>
-        // ========== НАСТРОЙКИ BARK ==========
         const BARK_DEVICE_KEY = "2mfG6468JsmXaVLaLETob";
         const BARK_API_URL = "https://api.day.app";
         
-        // Отправка уведомления в Bark
         async function sendBarkNotification(orderId, clientName, phone, address, itemsList, totalSum, itemCount) {
             const title = `🪨 НОВЫЙ ЗАКАЗ #${orderId}`;
             const body = `👤 ${clientName}\n📞 ${phone}\n📍 ${address}\n📦 ${itemsList}\n💰 ${totalSum.toLocaleString()}₽ (${itemCount} шт.)\n\n👇 Нажмите для подтверждения`;
             const encodedTitle = encodeURIComponent(title);
             const encodedBody = encodeURIComponent(body);
             
-            // Чтобы менеджер мог открыть с телефона и увидеть товары, мы зашиваем данные заказа прямо в ссылку!
             const orderData = encodeURIComponent(JSON.stringify({
                 n: clientName, p: phone, a: address, i: itemsList, s: totalSum, c: itemCount
             }));
@@ -193,7 +246,6 @@
             await fetch(url, { method: 'GET', mode: 'no-cors' });
         }
         
-        // ==================== ОСТАЛЬНАЯ ЛОГИКА ====================
         const ITEM_PRICE = 6600;
         let client = JSON.parse(localStorage.getItem('dolwall_user')) || null;
         let cart = [];
@@ -230,7 +282,6 @@
                 renderCatalog(); 
             }
             
-            // Проверка, если зашел менеджер по ссылке из Bark
             const urlParams = new URLSearchParams(window.location.search);
             const manageOrder = urlParams.get('manage');
             const manageData = urlParams.get('data');
@@ -241,7 +292,6 @@
         };
         
         function showManagerPanel(orderId, encodedData) {
-            // Распаковываем данные прямо из ссылки (работает на любом устройстве!)
             let details = { n: 'Неизвестно', p: '—', a: '—', i: '—', s: 0, c: 0 };
             try {
                 if (encodedData) details = JSON.parse(decodeURIComponent(encodedData));
@@ -267,12 +317,11 @@
             </div>`;
             document.body.appendChild(modal);
             
-            // Отправка ГЛОБАЛЬНОГО ответа клиенту через Ntfy.sh
             document.getElementById('managerApprove').onclick = () => {
                 fetch(`https://ntfy.sh/dolwall_order_${orderId}`, { method: 'POST', body: 'approved' })
                 .then(() => {
                     alert('✅ Сигнал отправлен! Клиент увидел, что заказ подтвержден.');
-                    window.location.href = window.location.origin + window.location.pathname; // Очистка URL
+                    window.location.href = window.location.origin + window.location.pathname;
                 });
             };
             document.getElementById('managerReject').onclick = () => {
@@ -301,7 +350,6 @@
             const totalSum = cart.length*ITEM_PRICE;
             const clientName = `${client.ln} ${client.fn}`;
             
-            // Формируем список товаров
             let itemsGroups = {};
             cart.forEach(p => itemsGroups[p.name] = (itemsGroups[p.name] || 0) + 1);
             let itemsListShort = '';
@@ -310,7 +358,6 @@
             }
             itemsListShort = itemsListShort.slice(0, -2);
             
-            // Открываем модальное окно ожидания клиенту
             document.getElementById('cartBox').classList.remove('open');
             document.getElementById('statusModal').classList.add('active');
             document.getElementById('waitBox').classList.remove('hidden');
@@ -318,10 +365,8 @@
             document.getElementById('rejectedBox').classList.add('hidden');
             
             try { 
-                // Отправляем Bark на телефон админу
                 await sendBarkNotification(orderId, clientName, client.ph, client.ad, itemsListShort, totalSum, cart.length);
                 
-                // === МАГИЯ ЗДЕСЬ: Слушаем ответ от телефона админа через глобальный сервер ===
                 const eventSource = new EventSource(`https://ntfy.sh/dolwall_order_${orderId}/sse`);
                 eventSource.onmessage = (event) => {
                     const data = JSON.parse(event.data);
@@ -348,6 +393,14 @@
                 console.error(e);
             }
         }
+        
+        function openSupportModal() { document.getElementById('supportModal').classList.add('active'); document.body.classList.add('no-scroll'); }
+        function closeSupportModal() { document.getElementById('supportModal').classList.remove('active'); document.body.classList.remove('no-scroll'); }
+        function openCompanyModal() { document.getElementById('companyModal').classList.add('active'); document.body.classList.add('no-scroll'); }
+        function closeCompanyModal() { document.getElementById('companyModal').classList.remove('active'); document.body.classList.remove('no-scroll'); }
+        
+        document.getElementById('supportModal').addEventListener('click', (e) => { if(e.target === document.getElementById('supportModal')) closeSupportModal(); });
+        document.getElementById('companyModal').addEventListener('click', (e) => { if(e.target === document.getElementById('companyModal')) closeCompanyModal(); });
     </script>
 </body>
 </html>
