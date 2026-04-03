@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>DolWall — Гибкий мрамор (мгновенное подтверждение)</title>
+    <title>DolWall — Гибкий мрамор</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
@@ -193,7 +192,7 @@
     </div>
 
     <script>
-        // ==================== FIREBASE КОНФИГ (ВАШИ ДАННЫЕ) ====================
+        // ========== FIREBASE КОНФИГ (ВАШИ ДАННЫЕ) ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCOBYyz3VB2D2_4T_g8o2fJsrmTacOGWyQ",
             authDomain: "dolwall-ef7c6.firebaseapp.com",
@@ -204,20 +203,25 @@
             measurementId: "G-P0Y5HY8RWN"
         };
         
-        // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        console.log("Firebase инициализирован");
         
-        // ========== ОТПРАВКА BARK (ваш ключ) ==========
+        // ========== BARK (короткое уведомление только с суммой и количеством) ==========
         const BARK_DEVICE_KEY = "2mfG6468JsmXaVLaLETob";
         
-        async function sendBarkNotification(orderId, clientName, phone, address, itemsList, totalSum, itemCount) {
-            const title = `🪨 НОВЫЙ ЗАКАЗ #${orderId}`;
-            const body = `👤 ${clientName}\n📞 ${phone}\n📍 ${address}\n📦 ${itemsList}\n💰 ${totalSum.toLocaleString()}₽ (${itemCount} шт.)\n\n👇 Нажмите для подтверждения`;
+        async function sendBarkNotification(orderId, clientName, totalSum, itemCount) {
+            const title = `🪨 Новый заказ #${orderId}`;
+            const body = `${clientName} • ${totalSum.toLocaleString()}₽ • ${itemCount} шт. Нажмите для управления.`;
             const callbackUrl = `${window.location.origin}${window.location.pathname}?manage=${orderId}`;
             const url = `https://api.day.app/${BARK_DEVICE_KEY}/${encodeURIComponent(title)}/${encodeURIComponent(body)}?level=timeSensitive&group=DolWall&url=${encodeURIComponent(callbackUrl)}&automaticallyCopy=1`;
-            await fetch(url, { method: 'GET', mode: 'no-cors' });
+            
+            try {
+                await fetch(url, { method: 'GET', mode: 'no-cors' });
+                return true;
+            } catch (e) {
+                console.error("Bark error", e);
+                return false;
+            }
         }
         
         // ========== ОСНОВНАЯ ЛОГИКА ==========
@@ -257,7 +261,7 @@
         
         function startSystem() { document.getElementById('introScreen').classList.add('fade-out'); setTimeout(() => { document.getElementById('introScreen').style.display='none'; if(!client) document.getElementById('regModal').classList.add('active'); else { document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); } }, 1200); }
         function completeReg() { let data={ ln:document.getElementById('userLName').value.trim(), fn:document.getElementById('userFName').value.trim(), ph:document.getElementById('userPhone').value.trim(), ad:document.getElementById('userAddr').value.trim() }; if(!data.ln||!data.fn||!data.ph||!data.ad) { notify("Заполните все данные!"); return; } client=data; localStorage.setItem('dolwall_user',JSON.stringify(client)); document.getElementById('regModal').classList.remove('active'); document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); notify("Доступ открыт!"); }
-        function renderCatalog() { let grid=document.getElementById('catalogGrid'); grid.innerHTML=''; products.forEach((p,idx)=>{ grid.innerHTML+=`<div class="product-card" style="animation-delay:${idx*0.08}s"><div class="product-price">6.600₽</div><div class="product-img" style="background-image:url('${p.img}')"></div><div class="product-body"><h3>${p.name}</h3><p style="color:#aaa; margin-bottom:15px;">${p.type} • 3.4 m²</p><button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button></div></div>`; }); }
+        function renderCatalog() { let grid=document.getElementById('catalogGrid'); grid.innerHTML=''; products.forEach((p,idx)=>{ grid.innerHTML+=`<div class="product-card" style="animation-delay:${idx*0.08}s"><div class="product-price">6.600₽</div><div class="product-img" style="background-image:url('${p.img}')"></div><div class="product-body"><h3>${p.name}</h3><p style="color:#aaa; margin-bottom:15px;">${p.type} • 3.4 м²</p><button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button></div></div>`; }); }
         function notify(msg) { let box=document.getElementById('toastBox'); let toast=document.createElement('div'); toast.className='toast'; toast.innerHTML=`<i class="fa-solid fa-bell-concierge" style="color:var(--gold)"></i> ${msg}`; box.appendChild(toast); setTimeout(()=>toast.remove(),4000); }
         function addToCart(id) { let prod=products.find(x=>x.id===id); cart.push(prod); updateCartUI(); notify(`"${prod.name}" добавлен`); }
         function updateCartUI() { document.getElementById('cartCount').innerText=cart.length; document.getElementById('cartTotalSum').innerText=(cart.length*ITEM_PRICE).toLocaleString()+'₽'; }
@@ -265,7 +269,6 @@
         function renderCartItems() { let container=document.getElementById('cartItems'); container.innerHTML=''; let groups={}; cart.forEach(p=>groups[p.name]=(groups[p.name]||0)+1); for(let name in groups) container.innerHTML+=`<div class="cart-item"><div><b style="font-size:1.2rem;">${name}</b><br><span style="color:var(--gold);">${groups[name]} шт. x 6.600₽</span></div><i class="fa-solid fa-trash-can" style="color:#ff4757; cursor:pointer; font-size:1.5rem;" onclick="removeFromCart('${name}')"></i></div>`; }
         function removeFromCart(name) { cart=cart.filter(x=>x.name!==name); updateCartUI(); renderCartItems(); }
         
-        // Слушаем статус заказа в реальном времени
         function listenOrderStatus(orderId) {
             if (statusListener) statusListener.off();
             const statusRef = database.ref(`orders/${orderId}/status`);
@@ -292,18 +295,11 @@
         
         async function sendOrder() {
             if(cart.length===0) return notify("Корзина пуста!");
+            
             const orderId = Math.floor(Math.random()*89999)+10000;
             currentOrderId = orderId;
-            const totalSum = cart.length*ITEM_PRICE;
-            
-            // Формируем список товаров для уведомления
-            let itemsGroups = {};
-            cart.forEach(p => itemsGroups[p.name] = (itemsGroups[p.name] || 0) + 1);
-            let itemsListShort = '';
-            for (let name in itemsGroups) {
-                itemsListShort += `${name}: ${itemsGroups[name]} шт., `;
-            }
-            itemsListShort = itemsListShort.slice(0, -2);
+            const totalSum = cart.length * ITEM_PRICE;
+            const clientName = `${client.ln} ${client.fn}`;
             
             // Сохраняем заказ в Firebase
             const orderData = {
@@ -313,24 +309,37 @@
                 timestamp: Date.now(),
                 status: 'pending'
             };
-            await database.ref(`orders/${orderId}`).set(orderData);
             
-            // Отправляем уведомление менеджеру в Bark
             try {
-                await sendBarkNotification(orderId, `${client.ln} ${client.fn}`, client.ph, client.ad, itemsListShort, totalSum, cart.length);
-                notify("📱 Уведомление отправлено менеджеру!");
-            } catch(e) { notify("Ошибка отправки Bark, но заказ создан."); }
+                await database.ref(`orders/${orderId}`).set(orderData);
+                console.log("Заказ сохранён в Firebase");
+            } catch (e) {
+                notify("❌ Ошибка сохранения заказа: " + e.message);
+                return;
+            }
             
+            // Отправляем уведомление в Bark (короткое, только с суммой)
+            try {
+                const sent = await sendBarkNotification(orderId, clientName, totalSum, cart.length);
+                if (sent) {
+                    notify("📱 Уведомление отправлено менеджеру!");
+                } else {
+                    notify("⚠️ Уведомление не отправилось, но заказ создан.");
+                }
+            } catch (e) {
+                notify("⚠️ Ошибка отправки уведомления, но заказ создан.");
+            }
+            
+            // Показываем модальное окно ожидания
             document.getElementById('statusModal').classList.add('active');
             document.getElementById('waitBox').classList.remove('hidden');
             document.getElementById('successBox').classList.add('hidden');
             document.getElementById('rejectedBox').classList.add('hidden');
             
-            // Начинаем слушать статус
+            // Слушаем статус
             listenOrderStatus(orderId);
         }
         
-        // Панель менеджера (открывается по ссылке из уведомления)
         function showManagerPanel(orderId) {
             database.ref(`orders/${orderId}`).once('value', (snapshot) => {
                 const order = snapshot.val();
@@ -342,7 +351,6 @@
                 const items = order.items;
                 const totalSum = order.totalSum;
                 
-                // Группируем товары
                 const groups = {};
                 items.forEach(p => { groups[p.name] = groups[p.name] || { ...p, count: 0 }; groups[p.name].count++; });
                 const groupedList = Object.values(groups);
