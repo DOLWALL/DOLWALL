@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>DolWall — Гибкий мрамор (Bark + полное управление заказами)</title>
+    <title>DolWall — Гибкий мрамор (мгновенное подтверждение)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
         :root {
             --primary: #0a0a0a;
@@ -120,18 +123,23 @@
             .cart-sidebar { width: 100%; }
             .intro-logo { font-size: 2.8rem; letter-spacing: 8px; }
             .modal-content { padding: 40px 25px; }
-            /* Улучшенная мобильная панель админа */
-            .manager-mobile-buttons { flex-direction: column; gap: 15px; }
-            .manager-mobile-buttons button { width: 100%; font-size: 1.1rem; padding: 16px; }
-            .manager-order-item { flex-wrap: wrap; }
         }
-        .copy-btn { background: #2c3e50; color: white; border: none; border-radius: 40px; padding: 10px 20px; margin-top: 8px; font-size: 0.9rem; width: 100%; }
-        .telegram-share { background: #0088cc; margin-top: 15px; }
-        .action-buttons { display: flex; gap: 15px; justify-content: center; margin: 25px 0; }
-        .action-btn { flex: 1; padding: 18px; border-radius: 60px; font-weight: 800; font-size: 1.2rem; border: none; cursor: pointer; transition: 0.3s; }
-        .action-approve { background: #27ae60; color: white; }
-        .action-reject { background: #e74c3c; color: white; }
-        .action-btn:active { transform: scale(0.97); }
+        .btn-approve {
+            background: #27ae60;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .btn-reject {
+            background: #e74c3c;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body class="no-scroll">
@@ -178,235 +186,46 @@
     </div>
     <div id="statusModal" class="modal-overlay">
         <div class="modal-content">
-            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3 style="font-size:1.8rem; font-weight:900;">Ожидаем подтверждения менеджера</h3><p>Менеджер получил уведомление. Он отправит вам ссылку для подтверждения заказа в Telegram или по SMS. Перейдите по ней, чтобы завершить покупку.</p><div style="margin-top:20px; background:#f8f8f8; padding:15px; border-radius:20px;"><i class="fa-regular fa-clock"></i> Если ссылка не пришла в течение 5 минут, свяжитесь с нами в Telegram</div></div>
+            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3 style="font-size:1.8rem; font-weight:900;">Ожидаем подтверждения менеджера</h3><p>Менеджер получил уведомление в Bark. Как только он одобрит заказ — вы увидите реквизиты оплаты.</p></div>
             <div id="successBox" class="hidden"><i class="fa-solid fa-crown" style="font-size:6rem; color:var(--gold); animation:bounce 2s infinite;"></i><h2 style="color:#27ae60;">ЗАКАЗ ОДОБРЕН!</h2><div style="background:#fbfbfb; padding:35px; border-radius:30px; margin:20px 0; text-align:left;"><p>💳 Оплата: СБП по номеру</p><p>📞 Телефон: +7(912) 042-69-38</p><p>👤 Владелец: Долгов А.А.</p></div><a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none;"><i class="fa-brands fa-telegram"></i> Написать в Telegram</a></div>
             <div id="rejectedBox" class="hidden"><i class="fa-solid fa-circle-xmark" style="font-size:6rem; color:#e74c3c;"></i><h2 style="color:#c0392b;">ЗАКАЗ ОТКЛОНЁН</h2><p>Менеджер отклонил заказ. Свяжитесь с нами.</p><a href="https://t.me/dolgov_offical" class="intro-btn" style="margin-top:30px; background:#0088cc; color:#fff; border:none;">Написать в Telegram</a></div>
         </div>
     </div>
 
     <script>
-        // ========== НАСТРОЙКИ BARK ==========
-        const BARK_DEVICE_KEY = "2mfG6468JsmXaVLaLETob";
-        const BARK_API_URL = "https://api.day.app";
+        // ==================== FIREBASE КОНФИГ (ВАШИ ДАННЫЕ) ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOBYyz3VB2D2_4T_g8o2fJsrmTacOGWyQ",
+            authDomain: "dolwall-ef7c6.firebaseapp.com",
+            projectId: "dolwall-ef7c6",
+            storageBucket: "dolwall-ef7c6.firebasestorage.app",
+            messagingSenderId: "59250974178",
+            appId: "1:59250974178:web:c0d733eb711e2ea8f2edbb",
+            measurementId: "G-P0Y5HY8RWN"
+        };
         
-        // Отправка уведомления в Bark с полными данными заказа в URL
-        async function sendBarkNotification(orderId, client, items, totalSum) {
-            const orderSnapshot = {
-                orderId,
-                client: { ln: client.ln, fn: client.fn, ph: client.ph, ad: client.ad },
-                items: items.map(i => ({ id: i.id, name: i.name, type: i.type, img: i.img, price: 6600 })),
-                totalSum
-            };
-            const encodedData = encodeURIComponent(JSON.stringify(orderSnapshot));
-            const callbackUrl = `${window.location.origin}${window.location.pathname}?manage=${orderId}&data=${encodedData}`;
-            const title = `🪨 Новый заказ #${orderId}`;
-            const body = `${client.ln} ${client.fn} • ${totalSum.toLocaleString()}₽ • ${items.length} шт. Нажмите для управления.`;
-            const encodedTitle = encodeURIComponent(title);
-            const encodedBody = encodeURIComponent(body);
-            const url = `${BARK_API_URL}/${BARK_DEVICE_KEY}/${encodedTitle}/${encodedBody}?level=timeSensitive&group=DolWall&url=${encodeURIComponent(callbackUrl)}&automaticallyCopy=1`;
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        console.log("Firebase инициализирован");
+        
+        // ========== ОТПРАВКА BARK (ваш ключ) ==========
+        const BARK_DEVICE_KEY = "2mfG6468JsmXaVLaLETob";
+        
+        async function sendBarkNotification(orderId, clientName, phone, address, itemsList, totalSum, itemCount) {
+            const title = `🪨 НОВЫЙ ЗАКАЗ #${orderId}`;
+            const body = `👤 ${clientName}\n📞 ${phone}\n📍 ${address}\n📦 ${itemsList}\n💰 ${totalSum.toLocaleString()}₽ (${itemCount} шт.)\n\n👇 Нажмите для подтверждения`;
+            const callbackUrl = `${window.location.origin}${window.location.pathname}?manage=${orderId}`;
+            const url = `https://api.day.app/${BARK_DEVICE_KEY}/${encodeURIComponent(title)}/${encodeURIComponent(body)}?level=timeSensitive&group=DolWall&url=${encodeURIComponent(callbackUrl)}&automaticallyCopy=1`;
             await fetch(url, { method: 'GET', mode: 'no-cors' });
         }
         
-        // ========== ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ==========
-        function saveOrderDetails(orderId, orderData) {
-            localStorage.setItem(`dolwall_order_${orderId}`, JSON.stringify(orderData));
-        }
-        function getOrderDetails(orderId) {
-            const raw = localStorage.getItem(`dolwall_order_${orderId}`);
-            return raw ? JSON.parse(raw) : null;
-        }
-        function setOrderStatus(orderId, status) {
-            let orders = JSON.parse(localStorage.getItem("dolwall_orders") || "{}");
-            orders[orderId] = status;
-            localStorage.setItem("dolwall_orders", JSON.stringify(orders));
-            const fullOrder = getOrderDetails(orderId);
-            if(fullOrder) {
-                fullOrder.status = status;
-                saveOrderDetails(orderId, fullOrder);
-            }
-            window.dispatchEvent(new StorageEvent('storage', { key: `dolwall_order_${orderId}`, newValue: JSON.stringify({status}) }));
-        }
-        function getOrderStatus(orderId) {
-            let orders = JSON.parse(localStorage.getItem("dolwall_orders") || "{}");
-            return orders[orderId] || "pending";
-        }
-        
-        // Синхронизация между вкладками
-        window.addEventListener('storage', (e) => {
-            if(e.key && e.key.startsWith('dolwall_order_')) {
-                const orderId = e.key.split('_')[2];
-                if(currentOrderId && currentOrderId == orderId) {
-                    const newStatus = getOrderStatus(orderId);
-                    if(newStatus === 'approved' && document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
-                        clearInterval(statusPoller);
-                        document.getElementById('waitBox').classList.add('hidden');
-                        document.getElementById('successBox').classList.remove('hidden');
-                        cart = [];
-                        updateCartUI();
-                        if(document.getElementById('cartBox').classList.contains('open')) document.getElementById('cartBox').classList.remove('open');
-                        notify("✅ Заказ подтверждён! Спасибо за покупку!");
-                        currentOrderId = null;
-                    } else if(newStatus === 'rejected' && document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
-                        clearInterval(statusPoller);
-                        document.getElementById('waitBox').classList.add('hidden');
-                        document.getElementById('rejectedBox').classList.remove('hidden');
-                        notify("❌ Заказ отклонён менеджером.");
-                        currentOrderId = null;
-                    }
-                }
-            }
-        });
-        
-        // ==================== УЛУЧШЕННАЯ МОБИЛЬНАЯ ПАНЕЛЬ МЕНЕДЖЕРА ====================
-        function showManagerPanel(orderId, encodedData) {
-            let orderData = null;
-            if(encodedData) {
-                try {
-                    orderData = JSON.parse(decodeURIComponent(encodedData));
-                    if(orderData.orderId != orderId) orderData = null;
-                } catch(e) { console.warn(e); }
-            }
-            if(!orderData) {
-                orderData = getOrderDetails(orderId);
-            }
-            if(!orderData) {
-                alert("❌ Заказ не найден или устарел. Убедитесь, что вы перешли по актуальной ссылке из уведомления Bark.");
-                return;
-            }
-            
-            const client = orderData.client;
-            const items = orderData.items;
-            const totalSum = orderData.totalSum;
-            const groups = {};
-            items.forEach(p => { groups[p.name] = groups[p.name] || { ...p, count: 0 }; groups[p.name].count++; });
-            const groupedList = Object.values(groups);
-            
-            const approveLink = `${window.location.origin}${window.location.pathname}?status=${orderId}:approved`;
-            const rejectLink = `${window.location.origin}${window.location.pathname}?status=${orderId}:rejected`;
-            const telegramMsg = encodeURIComponent(`✅ Здравствуйте! Ваш заказ #${orderId} на сумму ${totalSum.toLocaleString()}₽ ПОДТВЕРЖДЁН. Перейдите по ссылке для завершения: ${approveLink}\n\n❌ Если хотите отклонить заказ: ${rejectLink}`);
-            const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(approveLink)}&text=${telegramMsg}`;
-            
-            const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.96); backdrop-filter:blur(20px); z-index:20000; display:flex; justify-content:center; align-items:center; overflow-y:auto; padding:16px;';
-            modal.innerHTML = `
-                <div style="background:white; border-radius:40px; max-width:650px; width:100%; max-height:95vh; overflow-y:auto; padding:30px 24px; box-shadow:0 40px 100px rgba(0,0,0,0.4);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap;">
-                        <h2 style="font-size:1.8rem; font-weight:900;"><i class="fa-solid fa-clipboard-list" style="color:var(--gold);"></i> Заказ #${orderId}</h2>
-                        <i class="fa-solid fa-circle-xmark" style="font-size:2rem; cursor:pointer; color:#aaa;" onclick="this.closest('div').parentElement.remove()"></i>
-                    </div>
-                    <div style="background:#f8f8f8; border-radius:30px; padding:20px; margin-bottom:25px;">
-                        <h3 style="margin-bottom:15px; font-size:1.3rem;"><i class="fa-solid fa-user"></i> Данные клиента</h3>
-                        <p><strong>${client.ln} ${client.fn}</strong></p>
-                        <p><i class="fa-solid fa-phone"></i> ${client.ph}</p>
-                        <p><i class="fa-solid fa-location-dot"></i> ${client.ad}</p>
-                    </div>
-                    <div style="margin-bottom:25px;">
-                        <h3 style="margin-bottom:15px; font-size:1.3rem;"><i class="fa-solid fa-cube"></i> Состав заказа (${items.length} шт.)</h3>
-                        <div class="manager-order-list">
-                            ${groupedList.map(g => `
-                                <div class="manager-order-item">
-                                    <div class="order-item-img" style="background-image:url('${g.img}'); background-size:cover;"></div>
-                                    <div style="flex:1;"><strong>${g.name}</strong><br><span style="color:#888;">${g.type} • ${g.count} x 6.600₽</span></div>
-                                    <div style="font-weight:800;">${(g.count * 6600).toLocaleString()}₽</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div style="text-align:right; font-size:1.6rem; font-weight:900; margin-top:15px;">ИТОГО: ${totalSum.toLocaleString()}₽</div>
-                    </div>
-                    
-                    <div style="margin:20px 0; background:#eef2ff; border-radius:30px; padding:20px;">
-                        <h4 style="margin-bottom:12px;"><i class="fa-solid fa-link"></i> Отправьте клиенту ссылку-подтверждение</h4>
-                        <div class="action-buttons manager-mobile-buttons" style="flex-direction:column; gap:12px;">
-                            <button id="copyApproveBtn" class="action-btn action-approve" style="width:100%;"><i class="fa-regular fa-copy"></i> Скопировать ссылку ПОДТВЕРЖДЕНИЯ</button>
-                            <button id="copyRejectBtn" class="action-btn action-reject" style="width:100%;"><i class="fa-regular fa-copy"></i> Скопировать ссылку ОТКЛОНЕНИЯ</button>
-                            <a href="${telegramShareUrl}" target="_blank" class="action-btn telegram-share" style="display:inline-block; text-align:center; background:#0088cc; color:white; text-decoration:none; border-radius:60px;"><i class="fa-brands fa-telegram"></i> Отправить в Telegram</a>
-                        </div>
-                        <p class="small" style="margin-top:15px; font-size:0.75rem; color:#555; text-align:center;"><i class="fa-regular fa-comment"></i> После копирования отправьте ссылку клиенту (Telegram, WhatsApp, SMS). Клиент перейдёт по ней — заказ подтвердится автоматически.</p>
-                    </div>
-                    <div style="margin-top:10px; background:#f9f9f9; border-radius:20px; padding:15px; text-align:center;">
-                        <p style="font-size:0.8rem; color:#666;"><i class="fa-regular fa-bell"></i> Кнопки ниже изменят статус ТОЛЬКО на этом устройстве (если клиент за соседним компьютером). Для удалённого клиента используйте ссылки выше.</p>
-                        <div style="display:flex; gap:15px; margin-top:15px;">
-                            <button id="localApprove" style="flex:1; background:#27ae60; color:white; border:none; padding:12px; border-radius:60px; font-weight:bold;">✅ Локально подтвердить</button>
-                            <button id="localReject" style="flex:1; background:#e74c3c; color:white; border:none; padding:12px; border-radius:60px; font-weight:bold;">❌ Локально отклонить</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            
-            document.getElementById('copyApproveBtn').onclick = () => copyToClipboardText(approveLink, "✅ Ссылка подтверждения скопирована! Отправьте её клиенту.");
-            document.getElementById('copyRejectBtn').onclick = () => copyToClipboardText(rejectLink, "❌ Ссылка отклонения скопирована! Отправьте её клиенту.");
-            document.getElementById('localApprove').onclick = () => { setOrderStatus(orderId, 'approved'); notifyManager("✅ Статус изменён локально (если клиент на этом же устройстве, он увидит подтверждение)"); modal.remove(); };
-            document.getElementById('localReject').onclick = () => { setOrderStatus(orderId, 'rejected'); notifyManager("❌ Статус изменён локально"); modal.remove(); };
-        }
-        
-        function copyToClipboardText(text, successMsg) {
-            navigator.clipboard.writeText(text).then(() => {
-                notifyManager(successMsg);
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                notifyManager(successMsg);
-            });
-        }
-        
-        function notifyManager(msg) {
-            let box=document.getElementById('toastBox');
-            let toast=document.createElement('div');
-            toast.className='toast';
-            toast.innerHTML=`<i class="fa-solid fa-gavel" style="color:var(--gold)"></i> ${msg}`;
-            box.appendChild(toast);
-            setTimeout(()=>toast.remove(),3500);
-        }
-        
-        // Проверка URL: manage - для админа, status - для клиента
-        function checkUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const manageOrder = urlParams.get('manage');
-            const encodedData = urlParams.get('data');
-            if(manageOrder && !isNaN(parseInt(manageOrder))) {
-                showManagerPanel(manageOrder, encodedData);
-                window.history.replaceState({}, document.title, window.location.pathname);
-                return true;
-            }
-            const statusParam = urlParams.get('status');
-            if(statusParam && statusParam.includes(':')) {
-                const [orderId, newStatus] = statusParam.split(':');
-                if(orderId && (newStatus === 'approved' || newStatus === 'rejected')) {
-                    setOrderStatus(orderId, newStatus);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    notify(`🔄 Заказ #${orderId} ${newStatus === 'approved' ? 'подтверждён' : 'отклонён'}!`);
-                    if(currentOrderId && currentOrderId == orderId) {
-                        if(newStatus === 'approved') {
-                            document.getElementById('waitBox').classList.add('hidden');
-                            document.getElementById('successBox').classList.remove('hidden');
-                            cart = [];
-                            updateCartUI();
-                            if(document.getElementById('cartBox').classList.contains('open')) document.getElementById('cartBox').classList.remove('open');
-                            notify("✅ Заказ подтверждён! Спасибо за покупку!");
-                        } else if(newStatus === 'rejected') {
-                            document.getElementById('waitBox').classList.add('hidden');
-                            document.getElementById('rejectedBox').classList.remove('hidden');
-                            notify("❌ Заказ отклонён менеджером.");
-                        }
-                        if(statusPoller) clearInterval(statusPoller);
-                        currentOrderId = null;
-                    }
-                }
-            }
-            return false;
-        }
-        
-        // ==================== ОСНОВНАЯ ЛОГИКА ====================
+        // ========== ОСНОВНАЯ ЛОГИКА ==========
         const ITEM_PRICE = 6600;
         let client = JSON.parse(localStorage.getItem('dolwall_user')) || null;
         let cart = [];
         let currentOrderId = null;
-        let statusPoller = null;
+        let statusListener = null;
         
         const products = [
             { id:1, name:"Черное золото", type:"Глянцевый", img:"https://img.freepik.com/premium-vector/black-golden-marble-background-with-smudge-grey-effect-abstract-background_1051181-845.jpg" },
@@ -433,12 +252,12 @@
         
         window.onload = () => {
             if(client) { document.getElementById('introScreen').style.display = 'none'; document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); }
-            checkUrlParams();
+            checkUrlForManager();
         };
         
         function startSystem() { document.getElementById('introScreen').classList.add('fade-out'); setTimeout(() => { document.getElementById('introScreen').style.display='none'; if(!client) document.getElementById('regModal').classList.add('active'); else { document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); } }, 1200); }
         function completeReg() { let data={ ln:document.getElementById('userLName').value.trim(), fn:document.getElementById('userFName').value.trim(), ph:document.getElementById('userPhone').value.trim(), ad:document.getElementById('userAddr').value.trim() }; if(!data.ln||!data.fn||!data.ph||!data.ad) { notify("Заполните все данные!"); return; } client=data; localStorage.setItem('dolwall_user',JSON.stringify(client)); document.getElementById('regModal').classList.remove('active'); document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); notify("Доступ открыт!"); }
-        function renderCatalog() { let grid=document.getElementById('catalogGrid'); grid.innerHTML=''; products.forEach((p,idx)=>{ grid.innerHTML+=`<div class="product-card" style="animation-delay:${idx*0.08}s"><div class="product-price">6.600₽</div><div class="product-img" style="background-image:url('${p.img}')"></div><div class="product-body"><h3>${p.name}</h3><p style="color:#aaa; margin-bottom:15px;">${p.type} • 3.4 м²</p><button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button></div></div>`; }); }
+        function renderCatalog() { let grid=document.getElementById('catalogGrid'); grid.innerHTML=''; products.forEach((p,idx)=>{ grid.innerHTML+=`<div class="product-card" style="animation-delay:${idx*0.08}s"><div class="product-price">6.600₽</div><div class="product-img" style="background-image:url('${p.img}')"></div><div class="product-body"><h3>${p.name}</h3><p style="color:#aaa; margin-bottom:15px;">${p.type} • 3.4 m²</p><button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button></div></div>`; }); }
         function notify(msg) { let box=document.getElementById('toastBox'); let toast=document.createElement('div'); toast.className='toast'; toast.innerHTML=`<i class="fa-solid fa-bell-concierge" style="color:var(--gold)"></i> ${msg}`; box.appendChild(toast); setTimeout(()=>toast.remove(),4000); }
         function addToCart(id) { let prod=products.find(x=>x.id===id); cart.push(prod); updateCartUI(); notify(`"${prod.name}" добавлен`); }
         function updateCartUI() { document.getElementById('cartCount').innerText=cart.length; document.getElementById('cartTotalSum').innerText=(cart.length*ITEM_PRICE).toLocaleString()+'₽'; }
@@ -446,58 +265,139 @@
         function renderCartItems() { let container=document.getElementById('cartItems'); container.innerHTML=''; let groups={}; cart.forEach(p=>groups[p.name]=(groups[p.name]||0)+1); for(let name in groups) container.innerHTML+=`<div class="cart-item"><div><b style="font-size:1.2rem;">${name}</b><br><span style="color:var(--gold);">${groups[name]} шт. x 6.600₽</span></div><i class="fa-solid fa-trash-can" style="color:#ff4757; cursor:pointer; font-size:1.5rem;" onclick="removeFromCart('${name}')"></i></div>`; }
         function removeFromCart(name) { cart=cart.filter(x=>x.name!==name); updateCartUI(); renderCartItems(); }
         
+        // Слушаем статус заказа в реальном времени
+        function listenOrderStatus(orderId) {
+            if (statusListener) statusListener.off();
+            const statusRef = database.ref(`orders/${orderId}/status`);
+            statusListener = statusRef.on('value', (snapshot) => {
+                const status = snapshot.val();
+                if (status === 'approved') {
+                    document.getElementById('waitBox').classList.add('hidden');
+                    document.getElementById('successBox').classList.remove('hidden');
+                    cart = [];
+                    updateCartUI();
+                    if(document.getElementById('cartBox').classList.contains('open')) document.getElementById('cartBox').classList.remove('open');
+                    notify("✅ Заказ подтверждён! Спасибо за покупку!");
+                    if (statusListener) statusListener.off();
+                    statusListener = null;
+                } else if (status === 'rejected') {
+                    document.getElementById('waitBox').classList.add('hidden');
+                    document.getElementById('rejectedBox').classList.remove('hidden');
+                    notify("❌ Заказ отклонён менеджером.");
+                    if (statusListener) statusListener.off();
+                    statusListener = null;
+                }
+            });
+        }
+        
         async function sendOrder() {
             if(cart.length===0) return notify("Корзина пуста!");
             const orderId = Math.floor(Math.random()*89999)+10000;
             currentOrderId = orderId;
             const totalSum = cart.length*ITEM_PRICE;
-            const clientName = `${client.ln} ${client.fn}`;
             
-            const orderFull = {
-                orderId: orderId,
-                client: { ...client },
-                items: [...cart],
+            // Формируем список товаров для уведомления
+            let itemsGroups = {};
+            cart.forEach(p => itemsGroups[p.name] = (itemsGroups[p.name] || 0) + 1);
+            let itemsListShort = '';
+            for (let name in itemsGroups) {
+                itemsListShort += `${name}: ${itemsGroups[name]} шт., `;
+            }
+            itemsListShort = itemsListShort.slice(0, -2);
+            
+            // Сохраняем заказ в Firebase
+            const orderData = {
+                client: { ln: client.ln, fn: client.fn, ph: client.ph, ad: client.ad },
+                items: cart.map(i => ({ id: i.id, name: i.name, type: i.type, img: i.img, price: ITEM_PRICE })),
                 totalSum: totalSum,
                 timestamp: Date.now(),
                 status: 'pending'
             };
-            saveOrderDetails(orderId, orderFull);
-            setOrderStatus(orderId, 'pending');
+            await database.ref(`orders/${orderId}`).set(orderData);
             
-            try { 
-                await sendBarkNotification(orderId, client, cart, totalSum);
-                notify("📱 Уведомление отправлено менеджеру! Он свяжется с вами и отправит ссылку для подтверждения.");
-            } catch(e) { notify("Ошибка отправки уведомления менеджеру, но заказ сохранён. Свяжитесь с нами в Telegram."); }
+            // Отправляем уведомление менеджеру в Bark
+            try {
+                await sendBarkNotification(orderId, `${client.ln} ${client.fn}`, client.ph, client.ad, itemsListShort, totalSum, cart.length);
+                notify("📱 Уведомление отправлено менеджеру!");
+            } catch(e) { notify("Ошибка отправки Bark, но заказ создан."); }
             
             document.getElementById('statusModal').classList.add('active');
             document.getElementById('waitBox').classList.remove('hidden');
             document.getElementById('successBox').classList.add('hidden');
             document.getElementById('rejectedBox').classList.add('hidden');
             
-            if(statusPoller) clearInterval(statusPoller);
-            statusPoller = setInterval(() => {
-                const status = getOrderStatus(orderId);
-                if(status === 'approved') {
-                    clearInterval(statusPoller);
-                    if(document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
-                        document.getElementById('waitBox').classList.add('hidden');
-                        document.getElementById('successBox').classList.remove('hidden');
-                        cart = []; updateCartUI();
-                        if(document.getElementById('cartBox').classList.contains('open')) document.getElementById('cartBox').classList.remove('open');
-                        notify("✅ Заказ подтверждён! Спасибо за покупку!");
-                        currentOrderId = null;
-                    }
-                } else if(status === 'rejected') {
-                    clearInterval(statusPoller);
-                    if(document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
-                        document.getElementById('waitBox').classList.add('hidden');
-                        document.getElementById('rejectedBox').classList.remove('hidden');
-                        notify("❌ Заказ отклонён менеджером.");
-                        currentOrderId = null;
-                    }
+            // Начинаем слушать статус
+            listenOrderStatus(orderId);
+        }
+        
+        // Панель менеджера (открывается по ссылке из уведомления)
+        function showManagerPanel(orderId) {
+            database.ref(`orders/${orderId}`).once('value', (snapshot) => {
+                const order = snapshot.val();
+                if (!order) {
+                    alert("Заказ не найден в базе данных.");
+                    return;
                 }
-            }, 3000);
-            setTimeout(() => { if(statusPoller) { clearInterval(statusPoller); if(!document.getElementById('waitBox').classList.contains('hidden')) { notify("⏳ Время ожидания истекло. Если вы не получили ссылку, напишите менеджеру в Telegram."); document.getElementById('statusModal').classList.remove('active'); } } }, 600000);
+                const clientData = order.client;
+                const items = order.items;
+                const totalSum = order.totalSum;
+                
+                // Группируем товары
+                const groups = {};
+                items.forEach(p => { groups[p.name] = groups[p.name] || { ...p, count: 0 }; groups[p.name].count++; });
+                const groupedList = Object.values(groups);
+                
+                const modal = document.createElement('div');
+                modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.96); backdrop-filter:blur(20px); z-index:20000; display:flex; justify-content:center; align-items:center; overflow-y:auto; padding:16px;';
+                modal.innerHTML = `
+                    <div style="background:white; border-radius:40px; max-width:650px; width:100%; max-height:95vh; overflow-y:auto; padding:30px 24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                            <h2 style="font-size:1.8rem; font-weight:900;"><i class="fa-solid fa-clipboard-list" style="color:var(--gold);"></i> Заказ #${orderId}</h2>
+                            <i class="fa-solid fa-circle-xmark" style="font-size:2rem; cursor:pointer; color:#aaa;" onclick="this.closest('div').parentElement.remove()"></i>
+                        </div>
+                        <div style="background:#f8f8f8; border-radius:30px; padding:20px; margin-bottom:25px;">
+                            <h3><i class="fa-solid fa-user"></i> Данные клиента</h3>
+                            <p><strong>${clientData.ln} ${clientData.fn}</strong></p>
+                            <p><i class="fa-solid fa-phone"></i> ${clientData.ph}</p>
+                            <p><i class="fa-solid fa-location-dot"></i> ${clientData.ad}</p>
+                        </div>
+                        <div style="margin-bottom:25px;">
+                            <h3>Состав заказа (${items.length} шт.)</h3>
+                            ${groupedList.map(g => `
+                                <div class="manager-order-item">
+                                    <div class="order-item-img" style="background-image:url('${g.img}'); background-size:cover;"></div>
+                                    <div style="flex:1;"><strong>${g.name}</strong><br>${g.type} • ${g.count} x 6.600₽</div>
+                                    <div>${(g.count * 6600).toLocaleString()}₽</div>
+                                </div>
+                            `).join('')}
+                            <div style="text-align:right; font-size:1.6rem; font-weight:900; margin-top:15px;">ИТОГО: ${totalSum.toLocaleString()}₽</div>
+                        </div>
+                        <button id="approveBtn" class="btn-approve"><i class="fa-solid fa-check-circle"></i> ПОДТВЕРДИТЬ ЗАКАЗ</button>
+                        <button id="rejectBtn" class="btn-approve btn-reject"><i class="fa-solid fa-ban"></i> ОТКЛОНИТЬ ЗАКАЗ</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                document.getElementById('approveBtn').onclick = async () => {
+                    await database.ref(`orders/${orderId}/status`).set('approved');
+                    alert("✅ Заказ подтверждён! Клиент увидит это мгновенно.");
+                    modal.remove();
+                };
+                document.getElementById('rejectBtn').onclick = async () => {
+                    await database.ref(`orders/${orderId}/status`).set('rejected');
+                    alert("❌ Заказ отклонён.");
+                    modal.remove();
+                };
+            });
+        }
+        
+        function checkUrlForManager() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const manage = urlParams.get('manage');
+            if(manage && !isNaN(parseInt(manage))) {
+                showManagerPanel(manage);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
     </script>
 </body>
