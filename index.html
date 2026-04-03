@@ -1,9 +1,8 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>DolWall — Гибкий мрамор (Bark + полное управление заказами)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -121,7 +120,18 @@
             .cart-sidebar { width: 100%; }
             .intro-logo { font-size: 2.8rem; letter-spacing: 8px; }
             .modal-content { padding: 40px 25px; }
+            /* Улучшенная мобильная панель админа */
+            .manager-mobile-buttons { flex-direction: column; gap: 15px; }
+            .manager-mobile-buttons button { width: 100%; font-size: 1.1rem; padding: 16px; }
+            .manager-order-item { flex-wrap: wrap; }
         }
+        .copy-btn { background: #2c3e50; color: white; border: none; border-radius: 40px; padding: 10px 20px; margin-top: 8px; font-size: 0.9rem; width: 100%; }
+        .telegram-share { background: #0088cc; margin-top: 15px; }
+        .action-buttons { display: flex; gap: 15px; justify-content: center; margin: 25px 0; }
+        .action-btn { flex: 1; padding: 18px; border-radius: 60px; font-weight: 800; font-size: 1.2rem; border: none; cursor: pointer; transition: 0.3s; }
+        .action-approve { background: #27ae60; color: white; }
+        .action-reject { background: #e74c3c; color: white; }
+        .action-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body class="no-scroll">
@@ -168,7 +178,7 @@
     </div>
     <div id="statusModal" class="modal-overlay">
         <div class="modal-content">
-            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3 style="font-size:1.8rem; font-weight:900;">Ожидаем ответа менеджера...</h3><p>Менеджеру отправлено уведомление в Bark. Нажмите на уведомление, чтобы принять или отклонить заказ.</p></div>
+            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3 style="font-size:1.8rem; font-weight:900;">Ожидаем подтверждения менеджера</h3><p>Менеджер получил уведомление. Он отправит вам ссылку для подтверждения заказа в Telegram или по SMS. Перейдите по ней, чтобы завершить покупку.</p><div style="margin-top:20px; background:#f8f8f8; padding:15px; border-radius:20px;"><i class="fa-regular fa-clock"></i> Если ссылка не пришла в течение 5 минут, свяжитесь с нами в Telegram</div></div>
             <div id="successBox" class="hidden"><i class="fa-solid fa-crown" style="font-size:6rem; color:var(--gold); animation:bounce 2s infinite;"></i><h2 style="color:#27ae60;">ЗАКАЗ ОДОБРЕН!</h2><div style="background:#fbfbfb; padding:35px; border-radius:30px; margin:20px 0; text-align:left;"><p>💳 Оплата: СБП по номеру</p><p>📞 Телефон: +7(912) 042-69-38</p><p>👤 Владелец: Долгов А.А.</p></div><a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none;"><i class="fa-brands fa-telegram"></i> Написать в Telegram</a></div>
             <div id="rejectedBox" class="hidden"><i class="fa-solid fa-circle-xmark" style="font-size:6rem; color:#e74c3c;"></i><h2 style="color:#c0392b;">ЗАКАЗ ОТКЛОНЁН</h2><p>Менеджер отклонил заказ. Свяжитесь с нами.</p><a href="https://t.me/dolgov_offical" class="intro-btn" style="margin-top:30px; background:#0088cc; color:#fff; border:none;">Написать в Telegram</a></div>
         </div>
@@ -181,7 +191,6 @@
         
         // Отправка уведомления в Bark с полными данными заказа в URL
         async function sendBarkNotification(orderId, client, items, totalSum) {
-            // Подготавливаем данные для передачи менеджеру (сжимаем в JSON)
             const orderSnapshot = {
                 orderId,
                 client: { ln: client.ln, fn: client.fn, ph: client.ph, ad: client.ad },
@@ -198,7 +207,7 @@
             await fetch(url, { method: 'GET', mode: 'no-cors' });
         }
         
-        // ========== ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (только для синхронизации на одном устройстве) ==========
+        // ========== ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ==========
         function saveOrderDetails(orderId, orderData) {
             localStorage.setItem(`dolwall_order_${orderId}`, JSON.stringify(orderData));
         }
@@ -248,17 +257,15 @@
             }
         });
         
-        // ==================== УЛУЧШЕННАЯ ПАНЕЛЬ МЕНЕДЖЕРА (с поддержкой данных из URL) ====================
+        // ==================== УЛУЧШЕННАЯ МОБИЛЬНАЯ ПАНЕЛЬ МЕНЕДЖЕРА ====================
         function showManagerPanel(orderId, encodedData) {
             let orderData = null;
-            // Пытаемся распарсить данные из URL
             if(encodedData) {
                 try {
                     orderData = JSON.parse(decodeURIComponent(encodedData));
                     if(orderData.orderId != orderId) orderData = null;
                 } catch(e) { console.warn(e); }
             }
-            // Если не получилось, пробуем из localStorage
             if(!orderData) {
                 orderData = getOrderDetails(orderId);
             }
@@ -274,26 +281,27 @@
             items.forEach(p => { groups[p.name] = groups[p.name] || { ...p, count: 0 }; groups[p.name].count++; });
             const groupedList = Object.values(groups);
             
-            // Генерируем ссылки для отправки клиенту (статус меняется через URL)
             const approveLink = `${window.location.origin}${window.location.pathname}?status=${orderId}:approved`;
             const rejectLink = `${window.location.origin}${window.location.pathname}?status=${orderId}:rejected`;
+            const telegramMsg = encodeURIComponent(`✅ Здравствуйте! Ваш заказ #${orderId} на сумму ${totalSum.toLocaleString()}₽ ПОДТВЕРЖДЁН. Перейдите по ссылке для завершения: ${approveLink}\n\n❌ Если хотите отклонить заказ: ${rejectLink}`);
+            const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(approveLink)}&text=${telegramMsg}`;
             
             const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); backdrop-filter:blur(15px); z-index:20000; display:flex; justify-content:center; align-items:center; overflow-y:auto; padding:20px;';
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.96); backdrop-filter:blur(20px); z-index:20000; display:flex; justify-content:center; align-items:center; overflow-y:auto; padding:16px;';
             modal.innerHTML = `
-                <div style="background:white; border-radius:50px; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; padding:40px; box-shadow:0 40px 100px rgba(0,0,0,0.3);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                        <h2 style="font-size:2rem; font-weight:900;"><i class="fa-solid fa-clipboard-list" style="color:var(--gold);"></i> Заказ #${orderId}</h2>
-                        <i class="fa-solid fa-circle-xmark" style="font-size:2rem; cursor:pointer; color:#999;" onclick="this.closest('div').parentElement.remove()"></i>
+                <div style="background:white; border-radius:40px; max-width:650px; width:100%; max-height:95vh; overflow-y:auto; padding:30px 24px; box-shadow:0 40px 100px rgba(0,0,0,0.4);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap;">
+                        <h2 style="font-size:1.8rem; font-weight:900;"><i class="fa-solid fa-clipboard-list" style="color:var(--gold);"></i> Заказ #${orderId}</h2>
+                        <i class="fa-solid fa-circle-xmark" style="font-size:2rem; cursor:pointer; color:#aaa;" onclick="this.closest('div').parentElement.remove()"></i>
                     </div>
-                    <div style="background:#f8f8f8; border-radius:35px; padding:25px; margin-bottom:30px;">
-                        <h3 style="margin-bottom:20px;"><i class="fa-solid fa-user"></i> Данные клиента</h3>
+                    <div style="background:#f8f8f8; border-radius:30px; padding:20px; margin-bottom:25px;">
+                        <h3 style="margin-bottom:15px; font-size:1.3rem;"><i class="fa-solid fa-user"></i> Данные клиента</h3>
                         <p><strong>${client.ln} ${client.fn}</strong></p>
                         <p><i class="fa-solid fa-phone"></i> ${client.ph}</p>
                         <p><i class="fa-solid fa-location-dot"></i> ${client.ad}</p>
                     </div>
-                    <div style="margin-bottom:30px;">
-                        <h3 style="margin-bottom:20px;"><i class="fa-solid fa-cube"></i> Состав заказа (${items.length} шт.)</h3>
+                    <div style="margin-bottom:25px;">
+                        <h3 style="margin-bottom:15px; font-size:1.3rem;"><i class="fa-solid fa-cube"></i> Состав заказа (${items.length} шт.)</h3>
                         <div class="manager-order-list">
                             ${groupedList.map(g => `
                                 <div class="manager-order-item">
@@ -303,41 +311,47 @@
                                 </div>
                             `).join('')}
                         </div>
-                        <div style="text-align:right; font-size:1.8rem; font-weight:900; margin-top:20px;">ИТОГО: ${totalSum.toLocaleString()}₽</div>
+                        <div style="text-align:right; font-size:1.6rem; font-weight:900; margin-top:15px;">ИТОГО: ${totalSum.toLocaleString()}₽</div>
                     </div>
-                    <div style="margin-bottom:30px; background:#f1f9ff; border-radius:35px; padding:20px;">
-                        <h4><i class="fa-solid fa-link"></i> Отправьте клиенту ссылку для подтверждения:</h4>
-                        <div style="display:flex; flex-direction:column; gap:15px; margin-top:15px;">
-                            <div><input type="text" id="approveLinkInput" value="${approveLink}" readonly style="width:100%; padding:12px; border-radius:60px; border:1px solid #ccc;"><button onclick="copyToClipboard('approveLinkInput')" style="margin-top:5px; background:#27ae60; color:white; border:none; border-radius:30px; padding:8px 20px;">✅ Скопировать ссылку ПОДТВЕРЖДЕНИЯ</button></div>
-                            <div><input type="text" id="rejectLinkInput" value="${rejectLink}" readonly style="width:100%; padding:12px; border-radius:60px; border:1px solid #ccc;"><button onclick="copyToClipboard('rejectLinkInput')" style="margin-top:5px; background:#e74c3c; color:white; border:none; border-radius:30px; padding:8px 20px;">❌ Скопировать ссылку ОТКЛОНЕНИЯ</button></div>
+                    
+                    <div style="margin:20px 0; background:#eef2ff; border-radius:30px; padding:20px;">
+                        <h4 style="margin-bottom:12px;"><i class="fa-solid fa-link"></i> Отправьте клиенту ссылку-подтверждение</h4>
+                        <div class="action-buttons manager-mobile-buttons" style="flex-direction:column; gap:12px;">
+                            <button id="copyApproveBtn" class="action-btn action-approve" style="width:100%;"><i class="fa-regular fa-copy"></i> Скопировать ссылку ПОДТВЕРЖДЕНИЯ</button>
+                            <button id="copyRejectBtn" class="action-btn action-reject" style="width:100%;"><i class="fa-regular fa-copy"></i> Скопировать ссылку ОТКЛОНЕНИЯ</button>
+                            <a href="${telegramShareUrl}" target="_blank" class="action-btn telegram-share" style="display:inline-block; text-align:center; background:#0088cc; color:white; text-decoration:none; border-radius:60px;"><i class="fa-brands fa-telegram"></i> Отправить в Telegram</a>
                         </div>
-                        <p class="small" style="margin-top:15px; font-size:0.8rem; color:#666;"><i class="fa-regular fa-comment"></i> Отправьте ссылку клиенту (Telegram, SMS и т.д.). После перехода по ссылке статус заказа обновится автоматически.</p>
+                        <p class="small" style="margin-top:15px; font-size:0.75rem; color:#555; text-align:center;"><i class="fa-regular fa-comment"></i> После копирования отправьте ссылку клиенту (Telegram, WhatsApp, SMS). Клиент перейдёт по ней — заказ подтвердится автоматически.</p>
                     </div>
-                    <div style="display:flex; gap:20px; justify-content:center; margin-top:10px;">
-                        <button id="managerApprove" style="background:#27ae60; color:white; border:none; padding:18px 40px; border-radius:60px; font-weight:bold; cursor:pointer; font-size:1.2rem;"><i class="fa-solid fa-check"></i> ПОДТВЕРДИТЬ (локально)</button>
-                        <button id="managerReject" style="background:#e74c3c; color:white; border:none; padding:18px 40px; border-radius:60px; font-weight:bold; cursor:pointer; font-size:1.2rem;"><i class="fa-solid fa-ban"></i> ОТКЛОНИТЬ (локально)</button>
+                    <div style="margin-top:10px; background:#f9f9f9; border-radius:20px; padding:15px; text-align:center;">
+                        <p style="font-size:0.8rem; color:#666;"><i class="fa-regular fa-bell"></i> Кнопки ниже изменят статус ТОЛЬКО на этом устройстве (если клиент за соседним компьютером). Для удалённого клиента используйте ссылки выше.</p>
+                        <div style="display:flex; gap:15px; margin-top:15px;">
+                            <button id="localApprove" style="flex:1; background:#27ae60; color:white; border:none; padding:12px; border-radius:60px; font-weight:bold;">✅ Локально подтвердить</button>
+                            <button id="localReject" style="flex:1; background:#e74c3c; color:white; border:none; padding:12px; border-radius:60px; font-weight:bold;">❌ Локально отклонить</button>
+                        </div>
                     </div>
-                    <p style="text-align:center; margin-top:25px; font-size:0.8rem; color:#aaa;"><i class="fa-regular fa-copy"></i> Локальные кнопки изменят статус только на этом устройстве. Для удаленного клиента используйте ссылки выше.</p>
                 </div>
             `;
             document.body.appendChild(modal);
-            document.getElementById('managerApprove').onclick = () => {
-                setOrderStatus(orderId, 'approved');
-                notifyManager("✅ Заказ подтверждён локально (если клиент на этом же устройстве, статус обновится)");
-                modal.remove();
-            };
-            document.getElementById('managerReject').onclick = () => {
-                setOrderStatus(orderId, 'rejected');
-                notifyManager("❌ Заказ отклонён локально");
-                modal.remove();
-            };
+            
+            document.getElementById('copyApproveBtn').onclick = () => copyToClipboardText(approveLink, "✅ Ссылка подтверждения скопирована! Отправьте её клиенту.");
+            document.getElementById('copyRejectBtn').onclick = () => copyToClipboardText(rejectLink, "❌ Ссылка отклонения скопирована! Отправьте её клиенту.");
+            document.getElementById('localApprove').onclick = () => { setOrderStatus(orderId, 'approved'); notifyManager("✅ Статус изменён локально (если клиент на этом же устройстве, он увидит подтверждение)"); modal.remove(); };
+            document.getElementById('localReject').onclick = () => { setOrderStatus(orderId, 'rejected'); notifyManager("❌ Статус изменён локально"); modal.remove(); };
         }
         
-        function copyToClipboard(inputId) {
-            const input = document.getElementById(inputId);
-            input.select();
-            document.execCommand('copy');
-            notifyManager("📋 Ссылка скопирована! Отправьте её клиенту.");
+        function copyToClipboardText(text, successMsg) {
+            navigator.clipboard.writeText(text).then(() => {
+                notifyManager(successMsg);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                notifyManager(successMsg);
+            });
         }
         
         function notifyManager(msg) {
@@ -452,8 +466,8 @@
             
             try { 
                 await sendBarkNotification(orderId, client, cart, totalSum);
-                notify("📱 Уведомление отправлено менеджеру! Нажмите на него, чтобы управлять заказом.");
-            } catch(e) { notify("Ошибка отправки Bark"); return; }
+                notify("📱 Уведомление отправлено менеджеру! Он свяжется с вами и отправит ссылку для подтверждения.");
+            } catch(e) { notify("Ошибка отправки уведомления менеджеру, но заказ сохранён. Свяжитесь с нами в Telegram."); }
             
             document.getElementById('statusModal').classList.add('active');
             document.getElementById('waitBox').classList.remove('hidden');
@@ -483,9 +497,8 @@
                     }
                 }
             }, 3000);
-            setTimeout(() => { if(statusPoller) { clearInterval(statusPoller); if(!document.getElementById('waitBox').classList.contains('hidden')) { notify("⏳ Время ожидания истекло. Попробуйте позже."); document.getElementById('statusModal').classList.remove('active'); } } }, 600000);
+            setTimeout(() => { if(statusPoller) { clearInterval(statusPoller); if(!document.getElementById('waitBox').classList.contains('hidden')) { notify("⏳ Время ожидания истекло. Если вы не получили ссылку, напишите менеджеру в Telegram."); document.getElementById('statusModal').classList.remove('active'); } } }, 600000);
         }
     </script>
 </body>
 </html>
-```
