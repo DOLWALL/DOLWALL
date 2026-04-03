@@ -339,9 +339,16 @@
         }
 
         function requestOrder() {
-            if(cart.length===0) return notify("Корзина пуста!");
-            if(!client) { document.getElementById('regModal').classList.add('active'); return; }
-            proceedToOrder();
+            if(cart.length === 0) return notify("Корзина пуста!");
+            const cartBox = document.getElementById('cartBox');
+            if(cartBox.classList.contains('open')) { cartBox.classList.remove('open'); }
+            if(client) {
+                document.getElementById('userLName').value = client.ln || '';
+                document.getElementById('userFName').value = client.fn || '';
+                document.getElementById('userPhone').value = client.ph || '';
+                document.getElementById('userAddr').value = client.ad || '';
+            }
+            document.getElementById('regModal').classList.add('active');
         }
 
         function completeRegAndOrder() {
