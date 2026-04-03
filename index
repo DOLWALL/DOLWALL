@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DolWall — Гибкий мрамор (Bark + локальное хранилище)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --gold: #c19b56;
+            --gold-light: #f4d093;
+            --white: #ffffff;
+            --bg: #fdfdfd;
+            --transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--primary); overflow-x: hidden; }
+        body.no-scroll { overflow: hidden; }
+        @keyframes reveal { from { opacity: 0; transform: translateY(60px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes logo-glow { 0% { filter: drop-shadow(0 0 5px var(--gold)); } 50% { filter: drop-shadow(0 0 30px var(--gold-light)); } 100% { filter: drop-shadow(0 0 5px var(--gold)); } }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .hidden { display: none !important; }
+        .fade-out { opacity: 0; pointer-events: none; transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        #introScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 10000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+        .intro-logo {
+            font-size: clamp(2.5rem, 10vw, 4.5rem); font-weight: 900; color: var(--white);
+            letter-spacing: 15px; margin-bottom: 40px; animation: logo-glow 3s infinite;
+        }
+        .intro-logo span { color: var(--gold); }
+        .intro-btn {
+            padding: 22px 60px; background: transparent; border: 2px solid var(--gold);
+            color: var(--gold); font-size: 1.1rem; cursor: pointer; border-radius: 60px;
+            transition: var(--transition); text-transform: uppercase; font-weight: 900;
+            box-shadow: 0 0 30px rgba(193, 155, 86, 0.2); letter-spacing: 2px;
+        }
+        .intro-btn:hover { background: var(--gold); color: #000; transform: scale(1.08) translateY(-5px); box-shadow: 0 20px 50px var(--gold); }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(25px);
+            z-index: 9000; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: 0.6s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-content {
+            background: var(--white); width: 95%; max-width: 550px; padding: 60px;
+            border-radius: 40px; transform: scale(0.8); transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .input-group { margin-bottom: 25px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 10px; font-size: 0.75rem; color: #bbb; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+        .input-group input {
+            width: 100%; padding: 20px; border: 2px solid #f0f0f0; border-radius: 20px;
+            font-size: 1rem; outline: none; transition: 0.4s; background: #fbfbfb;
+        }
+        .input-group input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 15px 30px rgba(193, 155, 86, 0.15); }
+        header {
+            position: sticky; top: 0; background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px); padding: 25px 5%; display: flex;
+            justify-content: space-between; align-items: center; z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+        }
+        .header-logo { font-size: 2rem; font-weight: 900; letter-spacing: 4px; }
+        .header-logo span { color: var(--gold); }
+        .hero {
+            height: 55vh; background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.4)), 
+            url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; text-align: center; padding: 20px;
+        }
+        .catalog-container { padding: 100px 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 50px; }
+        .product-card {
+            background: white; border-radius: 35px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05); transition: var(--transition);
+            animation: reveal 1.2s backwards; position: relative;
+        }
+        .product-card:hover { transform: translateY(-25px); box-shadow: 0 40px 80px rgba(0,0,0,0.15); }
+        .product-img { height: 420px; background-size: cover; background-position: center; transition: 1.5s transform; }
+        .product-card:hover .product-img { transform: scale(1.15); }
+        .product-price { position: absolute; top: 30px; right: 30px; background: rgba(0,0,0,0.85); color: var(--gold-light); padding: 12px 25px; border-radius: 60px; font-weight: 800; backdrop-filter: blur(10px); font-size: 1.1rem; }
+        .product-body { padding: 40px; text-align: center; }
+        .product-body h3 { font-size: 1.6rem; font-weight: 900; margin-bottom: 12px; }
+        .product-btn {
+            width: 100%; padding: 18px; background: var(--primary); color: white;
+            border: none; border-radius: 18px; cursor: pointer; transition: 0.5s;
+            font-weight: 800; margin-top: 25px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .product-btn:hover { background: var(--gold); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(193, 155, 86, 0.4); }
+        .cart-sidebar {
+            position: fixed; top: 0; right: 0; width: 500px; height: 100%;
+            background: white; z-index: 9500; transform: translateX(100%);
+            transition: var(--transition); box-shadow: -30px 0 80px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; padding: 50px;
+        }
+        .cart-sidebar.open { transform: translateX(0); }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 0; border-bottom: 2px solid #f8f8f8;
+        }
+        #toastBox { position: fixed; bottom: 40px; right: 40px; z-index: 11000; }
+        .toast {
+            background: var(--primary); color: white; padding: 25px 35px;
+            border-radius: 20px; margin-top: 20px; display: flex; align-items: center;
+            gap: 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.25); animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            border-left: 8px solid var(--gold); font-weight: 600;
+        }
+        .loader-icon { font-size: 5rem; color: var(--gold); margin-bottom: 35px; animation: rotate 2s linear infinite; }
+        @media (max-width: 768px) {
+            .cart-sidebar { width: 100%; }
+            .intro-logo { font-size: 2.8rem; letter-spacing: 8px; }
+            .modal-content { padding: 40px 25px; }
+        }
+    </style>
+</head>
+<body class="no-scroll">
+    <div id="toastBox"></div>
+    <div id="introScreen">
+        <div class="intro-logo">DOL<span>WALL</span></div>
+        <button class="intro-btn" onclick="startSystem()">Открыть коллекцию</button>
+    </div>
+    <div id="regModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 40px; font-weight: 900; font-size: 2rem; letter-spacing: -1px;">Регистрация клиента</h2>
+            <div class="input-group"><label>Фамилия</label><input type="text" id="userLName" placeholder="Иванов"></div>
+            <div class="input-group"><label>Имя и Отчество</label><input type="text" id="userFName" placeholder="Иван Иванович"></div>
+            <div class="input-group"><label>Контактный телефон</label><input type="tel" id="userPhone" placeholder="+7 (___) ___-__-__"></div>
+            <div class="input-group"><label>Точный адрес доставки</label><input type="text" id="userAddr" placeholder="Город, улица, дом, кв."></div>
+            <button class="intro-btn" style="width:100%; border-radius:20px; background:var(--primary); color:#fff; border:none;" onclick="completeReg()">Получить доступ</button>
+        </div>
+    </div>
+    <div id="mainUI" class="hidden">
+        <header>
+            <div class="header-logo" style="cursor:pointer;" onclick="location.reload()">DOL<span>WALL</span></div>
+            <button class="intro-btn" style="padding:12px 30px; font-size:0.95rem;" onclick="toggleCart()">
+                <i class="fa-solid fa-bag-shopping"></i> Корзина (<span id="cartCount">0</span>)
+            </button>
+        </header>
+        <div class="hero">
+            <h1 style="font-size:clamp(2.5rem,8vw,4.5rem); margin-bottom:20px; font-weight:900; letter-spacing:-2px;">ГИБКИЙ МРАМОР</h1>
+            <p style="color:var(--gold-light); letter-spacing:6px; text-transform:uppercase;">Искусство природного камня в вашем доме</p>
+        </div>
+        <div class="catalog-container" id="catalogGrid"></div>
+    </div>
+    <div id="cartBox" class="cart-sidebar">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:50px;">
+            <h2 style="font-size:2.2rem; font-weight:900;">Ваш заказ</h2>
+            <i class="fa-solid fa-circle-xmark" style="cursor:pointer; font-size:2.5rem; color:#eee;" onclick="toggleCart()"></i>
+        </div>
+        <div id="cartItems" style="flex-grow:1; overflow-y:auto; padding-right:10px;"></div>
+        <div style="padding-top:40px; border-top:3px solid #f9f9f9;">
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.8rem; margin-bottom:40px;">
+                <span>Итого:</span><span id="cartTotalSum">0₽</span>
+            </div>
+            <button class="intro-btn" style="width:100%; background:#000; color:#fff; border:none; font-size:1.2rem;" onclick="sendOrder()">Оформить покупку</button>
+        </div>
+    </div>
+    <div id="statusModal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3 style="font-size:1.8rem; font-weight:900;">Ожидаем ответа менеджера...</h3><p>Менеджеру отправлено уведомление в Bark. Нажмите на уведомление, чтобы принять или отклонить заказ.</p></div>
+            <div id="successBox" class="hidden"><i class="fa-solid fa-crown" style="font-size:6rem; color:var(--gold); animation:bounce 2s infinite;"></i><h2 style="color:#27ae60;">ЗАКАЗ ОДОБРЕН!</h2><div style="background:#fbfbfb; padding:35px; border-radius:30px; margin:20px 0; text-align:left;"><p>💳 Оплата: СБП по номеру</p><p>📞 Телефон: +7(912) 042-69-38</p><p>👤 Владелец: Долгов А.А.</p></div><a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none;"><i class="fa-brands fa-telegram"></i> Написать в Telegram</a></div>
+            <div id="rejectedBox" class="hidden"><i class="fa-solid fa-circle-xmark" style="font-size:6rem; color:#e74c3c;"></i><h2 style="color:#c0392b;">ЗАКАЗ ОТКЛОНЁН</h2><p>Менеджер отклонил заказ. Свяжитесь с нами.</p><a href="https://t.me/dolgov_offical" class="intro-btn" style="margin-top:30px; background:#0088cc; color:#fff; border:none;">Написать в Telegram</a></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== НАСТРОЙКИ BARK ==========
+        const BARK_DEVICE_KEY = "2mfG6468JsmXaVLaLETob";
+        const BARK_API_URL = "https://api.day.app";
+        
+        // Отправка уведомления в Bark
+        async function sendBarkNotification(orderId, clientName, totalSum, itemCount) {
+            const title = `🪨 Новый заказ #${orderId}`;
+            const body = `${clientName} • ${totalSum.toLocaleString()}₽ • ${itemCount} шт. Нажмите для управления.`;
+            const encodedTitle = encodeURIComponent(title);
+            const encodedBody = encodeURIComponent(body);
+            const callbackUrl = `${window.location.origin}${window.location.pathname}?manage=${orderId}`;
+            const encodedCallback = encodeURIComponent(callbackUrl);
+            const url = `${BARK_API_URL}/${BARK_DEVICE_KEY}/${encodedTitle}/${encodedBody}?level=timeSensitive&group=DolWall&url=${encodedCallback}&automaticallyCopy=1`;
+            await fetch(url, { method: 'GET', mode: 'no-cors' });
+        }
+        
+        // ========== ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (для статусов) ==========
+        // Статусы хранятся в localStorage, но чтобы менеджер мог подтвердить с другого устройства,
+        // мы будем использовать URL-параметр ?status=orderId:approved. При загрузке страницы клиент
+        // проверяет, есть ли в URL статус для его текущего заказа.
+        function setOrderStatus(orderId, status) {
+            let orders = JSON.parse(localStorage.getItem("dolwall_orders") || "{}");
+            orders[orderId] = status;
+            localStorage.setItem("dolwall_orders", JSON.stringify(orders));
+            // Также сохраняем в sessionStorage для быстрого доступа
+            sessionStorage.setItem(`order_${orderId}`, status);
+        }
+        
+        function getOrderStatus(orderId) {
+            let orders = JSON.parse(localStorage.getItem("dolwall_orders") || "{}");
+            return orders[orderId] || "pending";
+        }
+        
+        // Проверяем URL на наличие статуса (при переходе из уведомления)
+        function checkUrlForStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const statusParam = urlParams.get('status');
+            if (statusParam && statusParam.includes(':')) {
+                const [orderId, newStatus] = statusParam.split(':');
+                if (orderId && (newStatus === 'approved' || newStatus === 'rejected')) {
+                    setOrderStatus(orderId, newStatus);
+                    // Убираем параметр из URL, чтобы не повторять
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    notify(`Заказ #${orderId} ${newStatus === 'approved' ? 'подтверждён' : 'отклонён'}!`);
+                    // Если это текущий ожидаемый заказ, обновим UI
+                    if (currentOrderId && currentOrderId == orderId) {
+                        if (newStatus === 'approved') {
+                            document.getElementById('waitBox').classList.add('hidden');
+                            document.getElementById('successBox').classList.remove('hidden');
+                            cart = [];
+                            updateCartUI();
+                            const cartSidebar = document.getElementById('cartBox');
+                            if(cartSidebar.classList.contains('open')) cartSidebar.classList.remove('open');
+                            notify("Заказ подтверждён! Спасибо за покупку!");
+                        } else if (newStatus === 'rejected') {
+                            document.getElementById('waitBox').classList.add('hidden');
+                            document.getElementById('rejectedBox').classList.remove('hidden');
+                            notify("Заказ отклонён менеджером.");
+                        }
+                        if(statusPoller) clearInterval(statusPoller);
+                    }
+                }
+            }
+        }
+        
+        // ==================== ОСТАЛЬНАЯ ЛОГИКА ====================
+        const ITEM_PRICE = 6600;
+        let client = JSON.parse(localStorage.getItem('dolwall_user')) || null;
+        let cart = [];
+        let currentOrderId = null;
+        let statusPoller = null;
+        
+        const products = [
+            { id:1, name:"Черное золото", type:"Глянцевый", img:"https://img.freepik.com/premium-vector/black-golden-marble-background-with-smudge-grey-effect-abstract-background_1051181-845.jpg" },
+            { id:2, name:"Классик Голд", type:"Глянцевый", img:"https://img.santehnica.ru/files/images/resized/products/1/4/14141410-keramicheskaya-plitka-newtrend-intensity-light-wt36its15-30-x-60-sm-glyantsevaya-tsvet-beliy.1200x1200.jpg" },
+            { id:3, name:"Тянь Шань", type:"Мрамор", img:"https://conceptceramic.ru/image/catalog/product/284/314625.jpg" },
+            { id:4, name:"Гранит", type:"Натуральный", img:"https://ir.ozone.ru/s3/multimedia-1-h/w1200/7077049289.jpg" },
+            { id:5, name:"Юпитер матовый", type:"Матовый", img:"https://www.grouppartner.ru/upload/iblock/255/q3c2fmutdj8028yfzasd0tol4ah6t3nk.jpeg" },
+            { id:6, name:"Роял матовый", type:"Матовый", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/royal-400x600.jpeg" },
+            { id:7, name:"Оникс матовый", type:"Матовый", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/onix-400x600.jpeg" },
+            { id:8, name:"Капучино матовый", type:"Матовый", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/capucino-400x600.jpeg" },
+            { id:9, name:"Нежность", type:"Глянцевый", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/nezhnost-400x600.jpeg" },
+            { id:10, name:"Млечный путь", type:"Глянцевый", img:"https://ekaterinburg.novayaplitka.ru/upload/iblock/e8a/0jyyfdtel0zyutlkyy10no12apngd2ec.jpg" },
+            { id:11, name:"Грация", type:"Мрамор", img:"https://avatars.mds.yandex.net/get-goods_pic/14294964/hat4bd9cb453d8e3cf2d9616b6f0a002aa6/orig" },
+            { id:12, name:"Зебра", type:"Дизайнерский", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/zebra-400x600.jpeg" },
+            { id:13, name:"Олимп", type:"Мрамор", img:"https://avatars.mds.yandex.net/get-goods_pic/8171279/hatf41e07c6db79fe3a67504d18db95a07f/orig" },
+            { id:14, name:"Луна матовый", type:"Матовый", img:"https://avatars.mds.yandex.net/get-goods_pic/12824671/hat9d0e5ad877b6af971e5bb0a8c6139064/orig" },
+            { id:15, name:"Сильвер", type:"Глянцевый", img:"https://avatars.mds.yandex.net/get-goods_pic/6691814/hatb9964c8c57e4f437e1c4b815677e3b19/orig" },
+            { id:16, name:"Классик", type:"Глянцевый", img:"https://avatars.mds.yandex.net/get-goods_pic/15224382/hatf9f2c4516e58183c79ccd5b36e9dff85/orig" },
+            { id:17, name:"Серафинид", type:"Мрамор", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/serafinit-400x600.jpeg" },
+            { id:18, name:"Плутон матовый", type:"Матовый", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/pluton-1200x800.jpeg" },
+            { id:19, name:"Лагуна матовая", type:"Матовый", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/laguna-400x600.jpeg" },
+            { id:20, name:"Белый Мрамор", type:"Классика", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/royal-1200x800.jpeg" }
+        ];
+        
+        window.onload = () => {
+            if(client) { document.getElementById('introScreen').style.display = 'none'; document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); }
+            const urlParams = new URLSearchParams(window.location.search);
+            const manageOrder = urlParams.get('manage');
+            if(manageOrder && !isNaN(parseInt(manageOrder))) { showManagerPanel(manageOrder); window.history.replaceState({}, document.title, window.location.pathname); }
+            checkUrlForStatus();
+        };
+        
+        function showManagerPanel(orderId) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:20000; display:flex; justify-content:center; align-items:center;';
+            modal.innerHTML = `<div style="background:white; padding:40px; border-radius:40px; text-align:center; max-width:400px;"><h2 style="font-size:2rem;">🪨 Заказ #${orderId}</h2><p style="margin:20px 0;">Подтвердите или отклоните заказ клиента.</p><div style="display:flex; gap:20px; justify-content:center;"><button id="managerApprove" style="background:#27ae60; color:white; border:none; padding:15px 30px; border-radius:60px; font-weight:bold; cursor:pointer;">✅ ПОДТВЕРДИТЬ</button><button id="managerReject" style="background:#e74c3c; color:white; border:none; padding:15px 30px; border-radius:60px; font-weight:bold; cursor:pointer;">❌ ОТКЛОНИТЬ</button></div></div>`;
+            document.body.appendChild(modal);
+            document.getElementById('managerApprove').onclick = () => {
+                // Отправляем статус через URL (редирект на страницу клиента с параметром status)
+                const clientUrl = `${window.location.origin}${window.location.pathname}?status=${orderId}:approved`;
+                window.location.href = clientUrl;
+            };
+            document.getElementById('managerReject').onclick = () => {
+                const clientUrl = `${window.location.origin}${window.location.pathname}?status=${orderId}:rejected`;
+                window.location.href = clientUrl;
+            };
+        }
+        
+        function startSystem() { document.getElementById('introScreen').classList.add('fade-out'); setTimeout(() => { document.getElementById('introScreen').style.display='none'; if(!client) document.getElementById('regModal').classList.add('active'); else { document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); } }, 1200); }
+        function completeReg() { let data={ ln:document.getElementById('userLName').value.trim(), fn:document.getElementById('userFName').value.trim(), ph:document.getElementById('userPhone').value.trim(), ad:document.getElementById('userAddr').value.trim() }; if(!data.ln||!data.fn||!data.ph||!data.ad) { notify("Заполните все данные!"); return; } client=data; localStorage.setItem('dolwall_user',JSON.stringify(client)); document.getElementById('regModal').classList.remove('active'); document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); notify("Доступ открыт!"); }
+        function renderCatalog() { let grid=document.getElementById('catalogGrid'); grid.innerHTML=''; products.forEach((p,idx)=>{ grid.innerHTML+=`<div class="product-card" style="animation-delay:${idx*0.08}s"><div class="product-price">6.600₽</div><div class="product-img" style="background-image:url('${p.img}')"></div><div class="product-body"><h3>${p.name}</h3><p style="color:#aaa; margin-bottom:15px;">${p.type} • 3.4 м²</p><button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button></div></div>`; }); }
+        function notify(msg) { let box=document.getElementById('toastBox'); let toast=document.createElement('div'); toast.className='toast'; toast.innerHTML=`<i class="fa-solid fa-bell-concierge" style="color:var(--gold)"></i> ${msg}`; box.appendChild(toast); setTimeout(()=>toast.remove(),4000); }
+        function addToCart(id) { let prod=products.find(x=>x.id===id); cart.push(prod); updateCartUI(); notify(`"${prod.name}" добавлен`); }
+        function updateCartUI() { document.getElementById('cartCount').innerText=cart.length; document.getElementById('cartTotalSum').innerText=(cart.length*ITEM_PRICE).toLocaleString()+'₽'; }
+        function toggleCart() { document.getElementById('cartBox').classList.toggle('open'); renderCartItems(); }
+        function renderCartItems() { let container=document.getElementById('cartItems'); container.innerHTML=''; let groups={}; cart.forEach(p=>groups[p.name]=(groups[p.name]||0)+1); for(let name in groups) container.innerHTML+=`<div class="cart-item"><div><b style="font-size:1.2rem;">${name}</b><br><span style="color:var(--gold);">${groups[name]} шт. x 6.600₽</span></div><i class="fa-solid fa-trash-can" style="color:#ff4757; cursor:pointer; font-size:1.5rem;" onclick="removeFromCart('${name}')"></i></div>`; }
+        function removeFromCart(name) { cart=cart.filter(x=>x.name!==name); updateCartUI(); renderCartItems(); }
+        
+        async function sendOrder() {
+            if(cart.length===0) return notify("Корзина пуста!");
+            const orderId = Math.floor(Math.random()*89999)+10000;
+            currentOrderId = orderId;
+            const totalSum = cart.length*ITEM_PRICE;
+            const clientName = `${client.ln} ${client.fn}`;
+            try { await sendBarkNotification(orderId, clientName, totalSum, cart.length); notify("Уведомление отправлено менеджеру!"); } catch(e) { notify("Ошибка отправки Bark"); return; }
+            setOrderStatus(orderId, 'pending');
+            document.getElementById('statusModal').classList.add('active');
+            document.getElementById('waitBox').classList.remove('hidden');
+            document.getElementById('successBox').classList.add('hidden');
+            document.getElementById('rejectedBox').classList.add('hidden');
+            if(statusPoller) clearInterval(statusPoller);
+            statusPoller = setInterval(() => {
+                const status = getOrderStatus(orderId);
+                if(status === 'approved') {
+                    clearInterval(statusPoller);
+                    document.getElementById('waitBox').classList.add('hidden');
+                    document.getElementById('successBox').classList.remove('hidden');
+                    cart = []; updateCartUI();
+                    const cartSidebar = document.getElementById('cartBox');
+                    if(cartSidebar.classList.contains('open')) cartSidebar.classList.remove('open');
+                    notify("Заказ подтверждён! Спасибо за покупку!");
+                } else if(status === 'rejected') {
+                    clearInterval(statusPoller);
+                    document.getElementById('waitBox').classList.add('hidden');
+                    document.getElementById('rejectedBox').classList.remove('hidden');
+                    notify("Заказ отклонён менеджером.");
+                }
+            }, 4000);
+            setTimeout(() => { if(statusPoller) { clearInterval(statusPoller); if(!document.getElementById('waitBox').classList.contains('hidden')) { notify("Время ожидания истекло."); document.getElementById('statusModal').classList.remove('active'); } } }, 600000);
+        }
+    </script>
+</body>
+</html>     
