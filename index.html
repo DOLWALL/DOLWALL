@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>DolWall — Гибкий мрамор (Supabase | реальное подтверждение)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DolWall — Гибкий мрамор</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -21,6 +21,7 @@
         @keyframes logo-glow { 0% { filter: drop-shadow(0 0 5px var(--gold)); } 50% { filter: drop-shadow(0 0 30px var(--gold-light)); } 100% { filter: drop-shadow(0 0 5px var(--gold)); } }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         .hidden { display: none !important; }
         .fade-out { opacity: 0; pointer-events: none; transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
         #introScreen {
@@ -28,7 +29,10 @@
             background: #000; z-index: 10000; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
         }
-        .intro-logo { font-size: clamp(2.5rem, 10vw, 4.5rem); font-weight: 900; color: var(--white); letter-spacing: 15px; margin-bottom: 40px; animation: logo-glow 3s infinite; }
+        .intro-logo {
+            font-size: clamp(2.5rem, 10vw, 4.5rem); font-weight: 900; color: var(--white);
+            letter-spacing: 15px; margin-bottom: 40px; animation: logo-glow 3s infinite;
+        }
         .intro-logo span { color: var(--gold); }
         .intro-btn {
             padding: 22px 60px; background: transparent; border: 2px solid var(--gold);
@@ -52,7 +56,10 @@
         .modal-overlay.active .modal-content { transform: scale(1); }
         .input-group { margin-bottom: 25px; text-align: left; }
         .input-group label { display: block; margin-bottom: 10px; font-size: 0.75rem; color: #bbb; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
-        .input-group input { width: 100%; padding: 20px; border: 2px solid #f0f0f0; border-radius: 20px; font-size: 1rem; outline: none; transition: 0.4s; background: #fbfbfb; }
+        .input-group input {
+            width: 100%; padding: 20px; border: 2px solid #f0f0f0; border-radius: 20px;
+            font-size: 1rem; outline: none; transition: 0.4s; background: #fbfbfb;
+        }
         .input-group input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 15px 30px rgba(193, 155, 86, 0.15); }
         header {
             position: sticky; top: 0; background: rgba(255,255,255,0.9);
@@ -94,7 +101,10 @@
             display: flex; flex-direction: column; padding: 50px;
         }
         .cart-sidebar.open { transform: translateX(0); }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 25px 0; border-bottom: 2px solid #f8f8f8; }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 0; border-bottom: 2px solid #f8f8f8;
+        }
         #toastBox { position: fixed; bottom: 40px; right: 40px; z-index: 11000; }
         .toast {
             background: var(--primary); color: white; padding: 25px 35px;
@@ -103,18 +113,11 @@
             border-left: 8px solid var(--gold); font-weight: 600;
         }
         .loader-icon { font-size: 5rem; color: var(--gold); margin-bottom: 35px; animation: rotate 2s linear infinite; }
-        .manager-order-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #eee; }
         @media (max-width: 768px) {
             .cart-sidebar { width: 100%; }
             .intro-logo { font-size: 2.8rem; letter-spacing: 8px; }
             .modal-content { padding: 40px 25px; }
         }
-        .btn-approve { background: #27ae60; color: white; border: none; width: 100%; padding: 18px; border-radius: 60px; font-size: 1.2rem; font-weight: 800; margin-top: 20px; cursor: pointer; }
-        .btn-reject { background: #e74c3c; margin-top: 10px; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-        .status-pending { background: #f39c12; color: #fff; }
-        .status-approved { background: #27ae60; color: #fff; }
-        .status-rejected { background: #e74c3c; color: #fff; }
     </style>
 </head>
 <body class="no-scroll">
@@ -136,7 +139,9 @@
     <div id="mainUI" class="hidden">
         <header>
             <div class="header-logo" style="cursor:pointer;" onclick="location.reload()">DOL<span>WALL</span></div>
-            <button class="intro-btn" style="padding:12px 30px; font-size:0.95rem;" onclick="toggleCart()"><i class="fa-solid fa-bag-shopping"></i> Корзина (<span id="cartCount">0</span>)</button>
+            <button class="intro-btn" style="padding:12px 30px; font-size:0.95rem;" onclick="toggleCart()">
+                <i class="fa-solid fa-bag-shopping"></i> Корзина (<span id="cartCount">0</span>)
+            </button>
         </header>
         <div class="hero">
             <h1 style="font-size:clamp(2.5rem,8vw,4.5rem); margin-bottom:20px; font-weight:900; letter-spacing:-2px;">ГИБКИЙ МРАМОР</h1>
@@ -151,34 +156,49 @@
         </div>
         <div id="cartItems" style="flex-grow:1; overflow-y:auto; padding-right:10px;"></div>
         <div style="padding-top:40px; border-top:3px solid #f9f9f9;">
-            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.8rem; margin-bottom:40px;"><span>Итого:</span><span id="cartTotalSum">0₽</span></div>
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.8rem; margin-bottom:40px;">
+                <span>Итого:</span><span id="cartTotalSum">0₽</span>
+            </div>
             <button class="intro-btn" style="width:100%; background:#000; color:#fff; border:none; font-size:1.2rem;" onclick="sendOrder()">Оформить покупку</button>
         </div>
     </div>
     <div id="statusModal" class="modal-overlay">
         <div class="modal-content">
-            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3 style="font-size:1.8rem; font-weight:900;">Ожидаем подтверждения менеджера</h3><p>Менеджер получит уведомление. Как только он одобрит заказ — вы увидите реквизиты оплаты.</p></div>
+            <div id="waitBox"><i class="fa-solid fa-compass loader-icon"></i><h3 style="font-size:1.8rem; font-weight:900;">Ожидаем ответа менеджера...</h3><p>Менеджеру отправлено уведомление. Пожалуйста, не закрывайте страницу.</p></div>
             <div id="successBox" class="hidden"><i class="fa-solid fa-crown" style="font-size:6rem; color:var(--gold); animation:bounce 2s infinite;"></i><h2 style="color:#27ae60;">ЗАКАЗ ОДОБРЕН!</h2><div style="background:#fbfbfb; padding:35px; border-radius:30px; margin:20px 0; text-align:left;"><p>💳 Оплата: СБП по номеру</p><p>📞 Телефон: +7(912) 042-69-38</p><p>👤 Владелец: Долгов А.А.</p></div><a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none;"><i class="fa-brands fa-telegram"></i> Написать в Telegram</a></div>
-            <div id="rejectedBox" class="hidden"><i class="fa-solid fa-circle-xmark" style="font-size:6rem; color:#e74c3c;"></i><h2 style="color:#c0392b;">ЗАКАЗ ОТКЛОНЁН</h2><p>Менеджер отклонил заказ. Свяжитесь с нами.</p><a href="https://t.me/dolgov_offical" class="intro-btn" style="margin-top:30px; background:#0088cc; color:#fff; border:none;">Написать в Telegram</a></div>
+            <div id="rejectedBox" class="hidden"><i class="fa-solid fa-circle-xmark" style="font-size:6rem; color:#e74c3c;"></i><h2 style="color:#c0392b;">ЗАКАЗ ОТКЛОНЁН</h2><p>Менеджер отклонил заказ. Свяжитесь с нами для уточнения деталей.</p><a href="https://t.me/dolgov_offical" class="intro-btn" style="margin-top:30px; background:#0088cc; color:#fff; border:none; text-decoration:none;">Написать в Telegram</a></div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ========== КОНФИГУРАЦИЯ SUPABASE (ТВОИ ДАННЫЕ) ==========
-        const SUPABASE_URL = "https://gstxemlsleywigvntgtlr.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_my0FDTGgKaKM32oHANM7LAg_gFHKxiNQ";
+        // ========== НАСТРОЙКИ BARK ==========
+        const BARK_DEVICE_KEY = "2mfG6468JsmXaVLaLETob";
+        const BARK_API_URL = "https://api.day.app";
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Отправка уведомления в Bark
+        async function sendBarkNotification(orderId, clientName, phone, address, itemsList, totalSum, itemCount) {
+            const title = `🪨 НОВЫЙ ЗАКАЗ #${orderId}`;
+            const body = `👤 ${clientName}\n📞 ${phone}\n📍 ${address}\n📦 ${itemsList}\n💰 ${totalSum.toLocaleString()}₽ (${itemCount} шт.)\n\n👇 Нажмите для подтверждения`;
+            const encodedTitle = encodeURIComponent(title);
+            const encodedBody = encodeURIComponent(body);
+            
+            // Чтобы менеджер мог открыть с телефона и увидеть товары, мы зашиваем данные заказа прямо в ссылку!
+            const orderData = encodeURIComponent(JSON.stringify({
+                n: clientName, p: phone, a: address, i: itemsList, s: totalSum, c: itemCount
+            }));
+            const callbackUrl = `${window.location.origin}${window.location.pathname}?manage=${orderId}&data=${orderData}`;
+            const encodedCallback = encodeURIComponent(callbackUrl);
+            const url = `${BARK_API_URL}/${BARK_DEVICE_KEY}/${encodedTitle}/${encodedBody}?level=timeSensitive&group=DolWall&url=${encodedCallback}&automaticallyCopy=1`;
+            
+            await fetch(url, { method: 'GET', mode: 'no-cors' });
+        }
         
-        // ========== ОСНОВНЫЕ ПЕРЕМЕННЫЕ ==========
+        // ==================== ОСТАЛЬНАЯ ЛОГИКА ====================
         const ITEM_PRICE = 6600;
         let client = JSON.parse(localStorage.getItem('dolwall_user')) || null;
         let cart = [];
         let currentOrderId = null;
-        let statusCheckInterval = null;
         
-        // ========== ТОВАРЫ ==========
         const products = [
             { id:1, name:"Черное золото", type:"Глянцевый", img:"https://img.freepik.com/premium-vector/black-golden-marble-background-with-smudge-grey-effect-abstract-background_1051181-845.jpg" },
             { id:2, name:"Классик Голд", type:"Глянцевый", img:"https://img.santehnica.ru/files/images/resized/products/1/4/14141410-keramicheskaya-plitka-newtrend-intensity-light-wt36its15-30-x-60-sm-glyantsevaya-tsvet-beliy.1200x1200.jpg" },
@@ -202,295 +222,132 @@
             { id:20, name:"Белый Мрамор", type:"Классика", img:"https://гибкий-стиль.рф/image/cache/catalog/tov-new/royal-1200x800.jpeg" }
         ];
         
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-        function notify(msg) {
-            let box = document.getElementById('toastBox');
-            let toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<i class="fa-solid fa-bell-concierge" style="color:var(--gold)"></i> ${msg}`;
-            box.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
-        
-        function renderCatalog() {
-            let grid = document.getElementById('catalogGrid');
-            grid.innerHTML = '';
-            products.forEach((p, idx) => {
-                grid.innerHTML += `<div class="product-card" style="animation-delay:${idx * 0.08}s"><div class="product-price">6.600₽</div><div class="product-img" style="background-image:url('${p.img}')"></div><div class="product-body"><h3>${p.name}</h3><p style="color:#aaa; margin-bottom:15px;">${p.type} • 3.4 м²</p><button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button></div></div>`;
-            });
-        }
-        
-        function addToCart(id) {
-            let prod = products.find(x => x.id === id);
-            cart.push(prod);
-            updateCartUI();
-            notify(`"${prod.name}" добавлен`);
-        }
-        
-        function updateCartUI() {
-            document.getElementById('cartCount').innerText = cart.length;
-            document.getElementById('cartTotalSum').innerText = (cart.length * ITEM_PRICE).toLocaleString() + '₽';
-        }
-        
-        function toggleCart() {
-            document.getElementById('cartBox').classList.toggle('open');
-            renderCartItems();
-        }
-        
-        function renderCartItems() {
-            let container = document.getElementById('cartItems');
-            container.innerHTML = '';
-            let groups = {};
-            cart.forEach(p => groups[p.name] = (groups[p.name] || 0) + 1);
-            for (let name in groups) {
-                container.innerHTML += `<div class="cart-item"><div><b style="font-size:1.2rem;">${name}</b><br><span style="color:var(--gold);">${groups[name]} шт. x 6.600₽</span></div><i class="fa-solid fa-trash-can" style="color:#ff4757; cursor:pointer; font-size:1.5rem;" onclick="removeFromCart('${name}')"></i></div>`;
+        window.onload = () => {
+            if(client) { 
+                document.getElementById('introScreen').style.display = 'none'; 
+                document.getElementById('mainUI').classList.remove('hidden'); 
+                document.body.classList.remove('no-scroll'); 
+                renderCatalog(); 
             }
-        }
-        
-        function removeFromCart(name) {
-            cart = cart.filter(x => x.name !== name);
-            updateCartUI();
-            renderCartItems();
-        }
-        
-        function startSystem() {
-            document.getElementById('introScreen').classList.add('fade-out');
-            setTimeout(() => {
-                document.getElementById('introScreen').style.display = 'none';
-                if (!client) document.getElementById('regModal').classList.add('active');
-                else {
-                    document.getElementById('mainUI').classList.remove('hidden');
-                    document.body.classList.remove('no-scroll');
-                    renderCatalog();
-                }
-            }, 1200);
-        }
-        
-        function completeReg() {
-            let data = {
-                ln: document.getElementById('userLName').value.trim(),
-                fn: document.getElementById('userFName').value.trim(),
-                ph: document.getElementById('userPhone').value.trim(),
-                ad: document.getElementById('userAddr').value.trim()
-            };
-            if (!data.ln || !data.fn || !data.ph || !data.ad) {
-                notify("Заполните все данные!");
-                return;
+            
+            // Проверка, если зашел менеджер по ссылке из Bark
+            const urlParams = new URLSearchParams(window.location.search);
+            const manageOrder = urlParams.get('manage');
+            const manageData = urlParams.get('data');
+            
+            if(manageOrder && !isNaN(parseInt(manageOrder))) { 
+                showManagerPanel(manageOrder, manageData); 
             }
-            client = data;
-            localStorage.setItem('dolwall_user', JSON.stringify(client));
-            document.getElementById('regModal').classList.remove('active');
-            document.getElementById('mainUI').classList.remove('hidden');
-            document.body.classList.remove('no-scroll');
-            renderCatalog();
-            notify("Доступ открыт!");
-        }
+        };
         
-        // ========== ОТПРАВКА ЗАКАЗА В SUPABASE ==========
-        async function sendOrder() {
-            if (cart.length === 0) return notify("Корзина пуста!");
-            
-            const orderId = Math.floor(Math.random() * 89999) + 10000;
-            currentOrderId = orderId.toString();
-            const totalSum = cart.length * ITEM_PRICE;
-            
-            // Группируем товары
-            let itemsMap = {};
-            cart.forEach(p => {
-                if (!itemsMap[p.name]) itemsMap[p.name] = { name: p.name, type: p.type, img: p.img, count: 0, price: ITEM_PRICE };
-                itemsMap[p.name].count++;
-            });
-            const itemsArray = Object.values(itemsMap);
-            
-            const orderData = {
-                id: orderId.toString(),
-                client: { ln: client.ln, fn: client.fn, ph: client.ph, ad: client.ad },
-                items: itemsArray,
-                total_sum: totalSum,
-                status: 'pending'
-            };
-            
+        function showManagerPanel(orderId, encodedData) {
+            // Распаковываем данные прямо из ссылки (работает на любом устройстве!)
+            let details = { n: 'Неизвестно', p: '—', a: '—', i: '—', s: 0, c: 0 };
             try {
-                const { error } = await supabase
-                    .from('orders')
-                    .insert([orderData]);
-                
-                if (error) throw error;
-                
-                notify("✅ Заказ создан! Менеджер получит уведомление.");
-                
-                // Отправляем push-уведомление менеджеру через ntfy.sh (бесплатно)
-                const ntfyTopic = "dolwall";
-                const ntfyUrl = `https://ntfy.sh/${ntfyTopic}`;
-                const clickUrl = `${window.location.origin}${window.location.pathname}?manage=${orderId}`;
-                fetch(ntfyUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Title': `🪨 Новый заказ #${orderId}`,
-                        'Priority': 'high',
-                        'Tags': 'shopping_cart,credit_card',
-                        'Click': clickUrl
-                    },
-                    body: `👤 ${client.ln} ${client.fn}\n💰 ${totalSum.toLocaleString()}₽\n📦 ${cart.length} шт.`
-                }).catch(e => console.log("ntfy не отправилось, но это не критично"));
-                
-                // Открываем модальное окно ожидания
-                document.getElementById('statusModal').classList.add('active');
-                document.getElementById('waitBox').classList.remove('hidden');
-                document.getElementById('successBox').classList.add('hidden');
-                document.getElementById('rejectedBox').classList.add('hidden');
-                
-                // Запускаем проверку статуса каждые 3 секунды
-                if (statusCheckInterval) clearInterval(statusCheckInterval);
-                statusCheckInterval = setInterval(async () => {
-                    const { data, error } = await supabase
-                        .from('orders')
-                        .select('status')
-                        .eq('id', orderId.toString())
-                        .single();
-                    
-                    if (!error && data) {
-                        if (data.status === 'approved') {
-                            clearInterval(statusCheckInterval);
-                            document.getElementById('waitBox').classList.add('hidden');
-                            document.getElementById('successBox').classList.remove('hidden');
-                            cart = [];
-                            updateCartUI();
-                            if (document.getElementById('cartBox').classList.contains('open')) document.getElementById('cartBox').classList.remove('open');
-                            notify("✅ Заказ подтверждён! Спасибо за покупку!");
-                            currentOrderId = null;
-                        } else if (data.status === 'rejected') {
-                            clearInterval(statusCheckInterval);
-                            document.getElementById('waitBox').classList.add('hidden');
-                            document.getElementById('rejectedBox').classList.remove('hidden');
-                            notify("❌ Заказ отклонён менеджером.");
-                            currentOrderId = null;
-                        }
-                    }
-                }, 3000);
-                
-                // Таймаут 10 минут
-                setTimeout(() => {
-                    if (statusCheckInterval) {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                        if (!document.getElementById('waitBox').classList.contains('hidden')) {
-                            notify("⏰ Время ожидания истекло. Менеджер свяжется с вами.");
-                            document.getElementById('statusModal').classList.remove('active');
-                        }
-                    }
-                }, 600000);
-                
-            } catch (err) {
-                console.error(err);
-                notify("❌ Ошибка при создании заказа. Попробуйте ещё раз.");
-            }
-        }
-        
-        // ========== ПАНЕЛЬ МЕНЕДЖЕРА (открывается по ?manage=ID) ==========
-        async function showManagerPanel(orderId) {
-            const { data: order, error } = await supabase
-                .from('orders')
-                .select('*')
-                .eq('id', orderId)
-                .single();
-            
-            if (error || !order) {
-                alert("Заказ не найден.");
-                return;
-            }
-            
-            const clientData = order.client;
-            const items = order.items;
-            const totalSum = order.total_sum;
-            const currentStatus = order.status;
-            
+                if (encodedData) details = JSON.parse(decodeURIComponent(encodedData));
+            } catch(e) {}
+
             const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.96); backdrop-filter:blur(20px); z-index:20000; display:flex; justify-content:center; align-items:center; overflow-y:auto; padding:16px;';
-            modal.innerHTML = `
-                <div style="background:white; border-radius:40px; max-width:650px; width:100%; max-height:95vh; overflow-y:auto; padding:30px 24px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2 style="font-size:1.8rem; font-weight:900;"><i class="fa-solid fa-clipboard-list" style="color:var(--gold);"></i> Заказ #${orderId}</h2>
-                        <i class="fa-solid fa-circle-xmark" style="font-size:2rem; cursor:pointer; color:#aaa;" onclick="this.closest('div').parentElement.remove()"></i>
-                    </div>
-                    <div style="margin-bottom:15px;">
-                        <span class="status-badge status-${currentStatus}">${currentStatus === 'pending' ? '⏳ Ожидает' : currentStatus === 'approved' ? '✅ Одобрен' : '❌ Отклонён'}</span>
-                    </div>
-                    <div style="background:#f8f8f8; border-radius:30px; padding:20px; margin-bottom:25px;">
-                        <h3><i class="fa-solid fa-user"></i> Данные клиента</h3>
-                        <p><strong>${clientData.ln} ${clientData.fn}</strong></p>
-                        <p><i class="fa-solid fa-phone"></i> ${clientData.ph}</p>
-                        <p><i class="fa-solid fa-location-dot"></i> ${clientData.ad}</p>
-                    </div>
-                    <div style="margin-bottom:25px;">
-                        <h3>Состав заказа (${items.reduce((acc, i) => acc + i.count, 0)} шт.)</h3>
-                        ${items.map(g => `
-                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
-                                <div><strong>${g.name}</strong><br>${g.count} x ${g.price.toLocaleString()}₽</div>
-                                <div>${(g.count * g.price).toLocaleString()}₽</div>
-                            </div>
-                        `).join('')}
-                        <div style="text-align:right; font-size:1.6rem; font-weight:900; margin-top:15px;">ИТОГО: ${totalSum.toLocaleString()}₽</div>
-                    </div>
-                    ${currentStatus === 'pending' ? `
-                        <button id="approveBtn" class="btn-approve"><i class="fa-solid fa-check-circle"></i> ПОДТВЕРДИТЬ ЗАКАЗ</button>
-                        <button id="rejectBtn" class="btn-approve btn-reject"><i class="fa-solid fa-ban"></i> ОТКЛОНИТЬ ЗАКАЗ</button>
-                    ` : `
-                        <div style="text-align:center; padding:20px; background:#f0f0f0; border-radius:20px;">
-                            <p>Этот заказ уже ${currentStatus === 'approved' ? 'подтверждён' : 'отклонён'}</p>
-                            <button onclick="this.closest('div').parentElement.remove()" class="intro-btn" style="margin-top:15px; padding:12px 30px;">Закрыть</button>
-                        </div>
-                    `}
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:20000; display:flex; justify-content:center; align-items:center; overflow:auto;';
+            modal.innerHTML = `<div style="background:white; padding:40px; border-radius:40px; text-align:center; max-width:500px; max-height:90vh; overflow:auto;">
+                <h2 style="font-size:1.8rem; margin-bottom:10px;">🪨 ЗАКАЗ #${orderId}</h2>
+                <div style="text-align:left; margin:20px 0; padding:20px; background:#f5f5f5; border-radius:20px;">
+                    <p><strong>👤 Клиент:</strong> ${details.n}</p>
+                    <p><strong>📞 Телефон:</strong> ${details.p}</p>
+                    <p><strong>📍 Адрес:</strong> ${details.a}</p>
+                    <p><strong>📦 Состав заказа:</strong> ${details.i}</p>
+                    <p><strong>💰 Сумма:</strong> ${details.s.toLocaleString()}₽</p>
+                    <p><strong>📊 Количество:</strong> ${details.c} шт.</p>
                 </div>
-            `;
+                <p style="margin:20px 0;">Подтвердите или отклоните заказ:</p>
+                <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+                    <button id="managerApprove" style="background:#27ae60; color:white; border:none; padding:15px 30px; border-radius:60px; font-weight:bold; cursor:pointer;">✅ ПОДТВЕРДИТЬ</button>
+                    <button id="managerReject" style="background:#e74c3c; color:white; border:none; padding:15px 30px; border-radius:60px; font-weight:bold; cursor:pointer;">❌ ОТКЛОНИТЬ</button>
+                </div>
+            </div>`;
             document.body.appendChild(modal);
             
-            if (currentStatus === 'pending') {
-                document.getElementById('approveBtn').onclick = async () => {
-                    const { error } = await supabase
-                        .from('orders')
-                        .update({ status: 'approved' })
-                        .eq('id', orderId);
-                    if (!error) {
-                        alert("✅ Заказ подтверждён! Клиент увидит это мгновенно.");
-                        modal.remove();
-                    } else {
-                        alert("Ошибка при подтверждении.");
-                    }
-                };
-                document.getElementById('rejectBtn').onclick = async () => {
-                    const { error } = await supabase
-                        .from('orders')
-                        .update({ status: 'rejected' })
-                        .eq('id', orderId);
-                    if (!error) {
-                        alert("❌ Заказ отклонён.");
-                        modal.remove();
-                    } else {
-                        alert("Ошибка при отклонении.");
-                    }
-                };
-            }
+            // Отправка ГЛОБАЛЬНОГО ответа клиенту через Ntfy.sh
+            document.getElementById('managerApprove').onclick = () => {
+                fetch(`https://ntfy.sh/dolwall_order_${orderId}`, { method: 'POST', body: 'approved' })
+                .then(() => {
+                    alert('✅ Сигнал отправлен! Клиент увидел, что заказ подтвержден.');
+                    window.location.href = window.location.origin + window.location.pathname; // Очистка URL
+                });
+            };
+            document.getElementById('managerReject').onclick = () => {
+                fetch(`https://ntfy.sh/dolwall_order_${orderId}`, { method: 'POST', body: 'rejected' })
+                .then(() => {
+                    alert('❌ Сигнал отправлен! Клиент увидел, что заказ отклонен.');
+                    window.location.href = window.location.origin + window.location.pathname;
+                });
+            };
         }
         
-        function checkUrlForManager() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const manage = urlParams.get('manage');
-            if (manage && !isNaN(parseInt(manage))) {
-                showManagerPanel(manage);
-                window.history.replaceState({}, document.title, window.location.pathname);
+        function startSystem() { document.getElementById('introScreen').classList.add('fade-out'); setTimeout(() => { document.getElementById('introScreen').style.display='none'; if(!client) document.getElementById('regModal').classList.add('active'); else { document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); } }, 1200); }
+        function completeReg() { let data={ ln:document.getElementById('userLName').value.trim(), fn:document.getElementById('userFName').value.trim(), ph:document.getElementById('userPhone').value.trim(), ad:document.getElementById('userAddr').value.trim() }; if(!data.ln||!data.fn||!data.ph||!data.ad) { notify("Заполните все данные!"); return; } client=data; localStorage.setItem('dolwall_user',JSON.stringify(client)); document.getElementById('regModal').classList.remove('active'); document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); notify("Доступ открыт!"); }
+        function renderCatalog() { let grid=document.getElementById('catalogGrid'); grid.innerHTML=''; products.forEach((p,idx)=>{ grid.innerHTML+=`<div class="product-card" style="animation-delay:${idx*0.08}s"><div class="product-price">6.600₽</div><div class="product-img" style="background-image:url('${p.img}')"></div><div class="product-body"><h3>${p.name}</h3><p style="color:#aaa; margin-bottom:15px;">${p.type} • 3.4 м²</p><button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button></div></div>`; }); }
+        function notify(msg) { let box=document.getElementById('toastBox'); let toast=document.createElement('div'); toast.className='toast'; toast.innerHTML=`<i class="fa-solid fa-bell-concierge" style="color:var(--gold)"></i> ${msg}`; box.appendChild(toast); setTimeout(()=>toast.remove(),4000); }
+        function addToCart(id) { let prod=products.find(x=>x.id===id); cart.push(prod); updateCartUI(); notify(`"${prod.name}" добавлен`); }
+        function updateCartUI() { document.getElementById('cartCount').innerText=cart.length; document.getElementById('cartTotalSum').innerText=(cart.length*ITEM_PRICE).toLocaleString()+'₽'; }
+        function toggleCart() { document.getElementById('cartBox').classList.toggle('open'); renderCartItems(); }
+        function renderCartItems() { let container=document.getElementById('cartItems'); container.innerHTML=''; let groups={}; cart.forEach(p=>groups[p.name]=(groups[p.name]||0)+1); for(let name in groups) container.innerHTML+=`<div class="cart-item"><div><b style="font-size:1.2rem;">${name}</b><br><span style="color:var(--gold);">${groups[name]} шт. x 6.600₽</span></div><i class="fa-solid fa-trash-can" style="color:#ff4757; cursor:pointer; font-size:1.5rem;" onclick="removeFromCart('${name}')"></i></div>`; }
+        function removeFromCart(name) { cart=cart.filter(x=>x.name!==name); updateCartUI(); renderCartItems(); }
+        
+        async function sendOrder() {
+            if(cart.length===0) return notify("Корзина пуста!");
+            const orderId = Math.floor(Math.random()*89999)+10000;
+            currentOrderId = orderId;
+            const totalSum = cart.length*ITEM_PRICE;
+            const clientName = `${client.ln} ${client.fn}`;
+            
+            // Формируем список товаров
+            let itemsGroups = {};
+            cart.forEach(p => itemsGroups[p.name] = (itemsGroups[p.name] || 0) + 1);
+            let itemsListShort = '';
+            for (let name in itemsGroups) {
+                itemsListShort += `${name}: ${itemsGroups[name]} шт., `;
+            }
+            itemsListShort = itemsListShort.slice(0, -2);
+            
+            // Открываем модальное окно ожидания клиенту
+            document.getElementById('cartBox').classList.remove('open');
+            document.getElementById('statusModal').classList.add('active');
+            document.getElementById('waitBox').classList.remove('hidden');
+            document.getElementById('successBox').classList.add('hidden');
+            document.getElementById('rejectedBox').classList.add('hidden');
+            
+            try { 
+                // Отправляем Bark на телефон админу
+                await sendBarkNotification(orderId, clientName, client.ph, client.ad, itemsListShort, totalSum, cart.length);
+                
+                // === МАГИЯ ЗДЕСЬ: Слушаем ответ от телефона админа через глобальный сервер ===
+                const eventSource = new EventSource(`https://ntfy.sh/dolwall_order_${orderId}/sse`);
+                eventSource.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.event === "message") {
+                        const status = data.message;
+                        
+                        if (status === 'approved') {
+                            document.getElementById('waitBox').classList.add('hidden');
+                            document.getElementById('successBox').classList.remove('hidden');
+                            cart = []; updateCartUI();
+                            eventSource.close();
+                            notify("Заказ подтверждён! Спасибо за покупку!");
+                        } else if (status === 'rejected') {
+                            document.getElementById('waitBox').classList.add('hidden');
+                            document.getElementById('rejectedBox').classList.remove('hidden');
+                            eventSource.close();
+                            notify("Заказ отклонён менеджером.");
+                        }
+                    }
+                };
+
+            } catch (e) {
+                notify("Ошибка отправки заказа!");
+                console.error(e);
             }
         }
-        
-        window.onload = () => {
-            if (client) {
-                document.getElementById('introScreen').style.display = 'none';
-                document.getElementById('mainUI').classList.remove('hidden');
-                document.body.classList.remove('no-scroll');
-                renderCatalog();
-            }
-            checkUrlForManager();
-        };
     </script>
 </body>
 </html>
