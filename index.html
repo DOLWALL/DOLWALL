@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DolWall — Гибкий мрамор (Bark + локальное хранилище)</title>
+    <title>DolWall — Гибкий мрамор (Bark + полное управление заказами)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -113,6 +113,9 @@
             border-left: 8px solid var(--gold); font-weight: 600;
         }
         .loader-icon { font-size: 5rem; color: var(--gold); margin-bottom: 35px; animation: rotate 2s linear infinite; }
+        .order-item-img { width: 60px; height: 60px; background-size: cover; border-radius: 16px; margin-right: 15px; }
+        .manager-order-list { max-height: 400px; overflow-y: auto; margin: 20px 0; text-align: left; }
+        .manager-order-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #eee; }
         @media (max-width: 768px) {
             .cart-sidebar { width: 100%; }
             .intro-logo { font-size: 2.8rem; letter-spacing: 8px; }
@@ -175,7 +178,6 @@
         const BARK_DEVICE_KEY = "2mfG6468JsmXaVLaLETob";
         const BARK_API_URL = "https://api.day.app";
         
-        // Отправка уведомления в Bark
         async function sendBarkNotification(orderId, clientName, totalSum, itemCount) {
             const title = `🪨 Новый заказ #${orderId}`;
             const body = `${clientName} • ${totalSum.toLocaleString()}₽ • ${itemCount} шт. Нажмите для управления.`;
@@ -187,56 +189,142 @@
             await fetch(url, { method: 'GET', mode: 'no-cors' });
         }
         
-        // ========== ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (для статусов) ==========
-        // Статусы хранятся в localStorage, но чтобы менеджер мог подтвердить с другого устройства,
-        // мы будем использовать URL-параметр ?status=orderId:approved. При загрузке страницы клиент
-        // проверяет, есть ли в URL статус для его текущего заказа.
+        // ========== ХРАНИЛИЩЕ ЗАКАЗОВ ==========
+        function saveOrderDetails(orderId, orderData) {
+            localStorage.setItem(`dolwall_order_${orderId}`, JSON.stringify(orderData));
+        }
+        function getOrderDetails(orderId) {
+            const raw = localStorage.getItem(`dolwall_order_${orderId}`);
+            return raw ? JSON.parse(raw) : null;
+        }
         function setOrderStatus(orderId, status) {
             let orders = JSON.parse(localStorage.getItem("dolwall_orders") || "{}");
             orders[orderId] = status;
             localStorage.setItem("dolwall_orders", JSON.stringify(orders));
-            // Также сохраняем в sessionStorage для быстрого доступа
-            sessionStorage.setItem(`order_${orderId}`, status);
+            // Дополнительно сохраняем статус в самом заказе
+            const fullOrder = getOrderDetails(orderId);
+            if(fullOrder) {
+                fullOrder.status = status;
+                saveOrderDetails(orderId, fullOrder);
+            }
+            // Триггерим событие для синхронизации между вкладками
+            window.dispatchEvent(new StorageEvent('storage', { key: `dolwall_order_${orderId}`, newValue: JSON.stringify({status}) }));
         }
-        
         function getOrderStatus(orderId) {
             let orders = JSON.parse(localStorage.getItem("dolwall_orders") || "{}");
             return orders[orderId] || "pending";
         }
         
-        // Проверяем URL на наличие статуса (при переходе из уведомления)
-        function checkUrlForStatus() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const statusParam = urlParams.get('status');
-            if (statusParam && statusParam.includes(':')) {
-                const [orderId, newStatus] = statusParam.split(':');
-                if (orderId && (newStatus === 'approved' || newStatus === 'rejected')) {
-                    setOrderStatus(orderId, newStatus);
-                    // Убираем параметр из URL, чтобы не повторять
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    notify(`Заказ #${orderId} ${newStatus === 'approved' ? 'подтверждён' : 'отклонён'}!`);
-                    // Если это текущий ожидаемый заказ, обновим UI
-                    if (currentOrderId && currentOrderId == orderId) {
-                        if (newStatus === 'approved') {
-                            document.getElementById('waitBox').classList.add('hidden');
-                            document.getElementById('successBox').classList.remove('hidden');
-                            cart = [];
-                            updateCartUI();
-                            const cartSidebar = document.getElementById('cartBox');
-                            if(cartSidebar.classList.contains('open')) cartSidebar.classList.remove('open');
-                            notify("Заказ подтверждён! Спасибо за покупку!");
-                        } else if (newStatus === 'rejected') {
-                            document.getElementById('waitBox').classList.add('hidden');
-                            document.getElementById('rejectedBox').classList.remove('hidden');
-                            notify("Заказ отклонён менеджером.");
-                        }
-                        if(statusPoller) clearInterval(statusPoller);
+        // Глобальный обработчик storage для мгновенного обновления статуса
+        window.addEventListener('storage', (e) => {
+            if(e.key && e.key.startsWith('dolwall_order_')) {
+                const orderId = e.key.split('_')[2];
+                if(currentOrderId && currentOrderId == orderId) {
+                    const newStatus = getOrderStatus(orderId);
+                    if(newStatus === 'approved' && document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
+                        clearInterval(statusPoller);
+                        document.getElementById('waitBox').classList.add('hidden');
+                        document.getElementById('successBox').classList.remove('hidden');
+                        cart = [];
+                        updateCartUI();
+                        if(document.getElementById('cartBox').classList.contains('open')) document.getElementById('cartBox').classList.remove('open');
+                        notify("✅ Заказ подтверждён! Спасибо за покупку!");
+                        currentOrderId = null;
+                    } else if(newStatus === 'rejected' && document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
+                        clearInterval(statusPoller);
+                        document.getElementById('waitBox').classList.add('hidden');
+                        document.getElementById('rejectedBox').classList.remove('hidden');
+                        notify("❌ Заказ отклонён менеджером.");
+                        currentOrderId = null;
                     }
                 }
             }
+        });
+        
+        // ==================== УЛУЧШЕННАЯ ПАНЕЛЬ МЕНЕДЖЕРА ====================
+        function showManagerPanel(orderId) {
+            const orderData = getOrderDetails(orderId);
+            if(!orderData) {
+                alert("Заказ не найден или устарел.");
+                return;
+            }
+            const client = orderData.client;
+            const items = orderData.items; // массив товаров (с дубликатами)
+            // Группируем товары для красивого отображения
+            const groups = {};
+            items.forEach(p => { groups[p.name] = groups[p.name] || { ...p, count: 0 }; groups[p.name].count++; });
+            const groupedList = Object.values(groups);
+            const totalSum = orderData.totalSum;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); backdrop-filter:blur(15px); z-index:20000; display:flex; justify-content:center; align-items:center; overflow-y:auto; padding:20px;';
+            modal.innerHTML = `
+                <div style="background:white; border-radius:50px; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; padding:40px; box-shadow:0 40px 100px rgba(0,0,0,0.3);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                        <h2 style="font-size:2rem; font-weight:900;"><i class="fa-solid fa-clipboard-list" style="color:var(--gold);"></i> Заказ #${orderId}</h2>
+                        <i class="fa-solid fa-circle-xmark" style="font-size:2rem; cursor:pointer; color:#999;" onclick="this.closest('div').parentElement.remove()"></i>
+                    </div>
+                    <div style="background:#f8f8f8; border-radius:35px; padding:25px; margin-bottom:30px;">
+                        <h3 style="margin-bottom:20px;"><i class="fa-solid fa-user"></i> Данные клиента</h3>
+                        <p><strong>${client.ln} ${client.fn}</strong></p>
+                        <p><i class="fa-solid fa-phone"></i> ${client.ph}</p>
+                        <p><i class="fa-solid fa-location-dot"></i> ${client.ad}</p>
+                    </div>
+                    <div style="margin-bottom:30px;">
+                        <h3 style="margin-bottom:20px;"><i class="fa-solid fa-cube"></i> Состав заказа (${items.length} шт.)</h3>
+                        <div class="manager-order-list">
+                            ${groupedList.map(g => `
+                                <div class="manager-order-item">
+                                    <div class="order-item-img" style="background-image:url('${g.img}'); background-size:cover;"></div>
+                                    <div style="flex:1;"><strong>${g.name}</strong><br><span style="color:#888;">${g.type} • ${g.count} x 6.600₽</span></div>
+                                    <div style="font-weight:800;">${(g.count * 6600).toLocaleString()}₽</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="text-align:right; font-size:1.8rem; font-weight:900; margin-top:20px;">ИТОГО: ${totalSum.toLocaleString()}₽</div>
+                    </div>
+                    <div style="display:flex; gap:20px; justify-content:center; margin-top:20px;">
+                        <button id="managerApprove" style="background:#27ae60; color:white; border:none; padding:18px 40px; border-radius:60px; font-weight:bold; cursor:pointer; font-size:1.2rem;"><i class="fa-solid fa-check"></i> ПОДТВЕРДИТЬ</button>
+                        <button id="managerReject" style="background:#e74c3c; color:white; border:none; padding:18px 40px; border-radius:60px; font-weight:bold; cursor:pointer; font-size:1.2rem;"><i class="fa-solid fa-ban"></i> ОТКЛОНИТЬ</button>
+                    </div>
+                    <p style="text-align:center; margin-top:25px; font-size:0.8rem; color:#aaa;"><i class="fa-regular fa-copy"></i> Статус обновится у клиента автоматически</p>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('managerApprove').onclick = () => {
+                setOrderStatus(orderId, 'approved');
+                notifyManager("✅ Заказ подтверждён, клиент получит уведомление.");
+                modal.remove();
+            };
+            document.getElementById('managerReject').onclick = () => {
+                setOrderStatus(orderId, 'rejected');
+                notifyManager("❌ Заказ отклонён.");
+                modal.remove();
+            };
         }
         
-        // ==================== ОСТАЛЬНАЯ ЛОГИКА ====================
+        function notifyManager(msg) {
+            let box=document.getElementById('toastBox');
+            let toast=document.createElement('div');
+            toast.className='toast';
+            toast.innerHTML=`<i class="fa-solid fa-gavel" style="color:var(--gold)"></i> ${msg}`;
+            box.appendChild(toast);
+            setTimeout(()=>toast.remove(),3500);
+        }
+        
+        // Проверяем URL параметры (manage - для админа)
+        function checkUrlForManagement() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const manageOrder = urlParams.get('manage');
+            if(manageOrder && !isNaN(parseInt(manageOrder))) {
+                showManagerPanel(manageOrder);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return true;
+            }
+            return false;
+        }
+        
+        // ==================== ОСНОВНАЯ ЛОГИКА ====================
         const ITEM_PRICE = 6600;
         let client = JSON.parse(localStorage.getItem('dolwall_user')) || null;
         let cart = [];
@@ -268,27 +356,8 @@
         
         window.onload = () => {
             if(client) { document.getElementById('introScreen').style.display = 'none'; document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); }
-            const urlParams = new URLSearchParams(window.location.search);
-            const manageOrder = urlParams.get('manage');
-            if(manageOrder && !isNaN(parseInt(manageOrder))) { showManagerPanel(manageOrder); window.history.replaceState({}, document.title, window.location.pathname); }
-            checkUrlForStatus();
+            checkUrlForManagement(); // Админ-панель при manage=ID
         };
-        
-        function showManagerPanel(orderId) {
-            const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:20000; display:flex; justify-content:center; align-items:center;';
-            modal.innerHTML = `<div style="background:white; padding:40px; border-radius:40px; text-align:center; max-width:400px;"><h2 style="font-size:2rem;">🪨 Заказ #${orderId}</h2><p style="margin:20px 0;">Подтвердите или отклоните заказ клиента.</p><div style="display:flex; gap:20px; justify-content:center;"><button id="managerApprove" style="background:#27ae60; color:white; border:none; padding:15px 30px; border-radius:60px; font-weight:bold; cursor:pointer;">✅ ПОДТВЕРДИТЬ</button><button id="managerReject" style="background:#e74c3c; color:white; border:none; padding:15px 30px; border-radius:60px; font-weight:bold; cursor:pointer;">❌ ОТКЛОНИТЬ</button></div></div>`;
-            document.body.appendChild(modal);
-            document.getElementById('managerApprove').onclick = () => {
-                // Отправляем статус через URL (редирект на страницу клиента с параметром status)
-                const clientUrl = `${window.location.origin}${window.location.pathname}?status=${orderId}:approved`;
-                window.location.href = clientUrl;
-            };
-            document.getElementById('managerReject').onclick = () => {
-                const clientUrl = `${window.location.origin}${window.location.pathname}?status=${orderId}:rejected`;
-                window.location.href = clientUrl;
-            };
-        }
         
         function startSystem() { document.getElementById('introScreen').classList.add('fade-out'); setTimeout(() => { document.getElementById('introScreen').style.display='none'; if(!client) document.getElementById('regModal').classList.add('active'); else { document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); } }, 1200); }
         function completeReg() { let data={ ln:document.getElementById('userLName').value.trim(), fn:document.getElementById('userFName').value.trim(), ph:document.getElementById('userPhone').value.trim(), ad:document.getElementById('userAddr').value.trim() }; if(!data.ln||!data.fn||!data.ph||!data.ad) { notify("Заполните все данные!"); return; } client=data; localStorage.setItem('dolwall_user',JSON.stringify(client)); document.getElementById('regModal').classList.remove('active'); document.getElementById('mainUI').classList.remove('hidden'); document.body.classList.remove('no-scroll'); renderCatalog(); notify("Доступ открыт!"); }
@@ -306,32 +375,53 @@
             currentOrderId = orderId;
             const totalSum = cart.length*ITEM_PRICE;
             const clientName = `${client.ln} ${client.fn}`;
-            try { await sendBarkNotification(orderId, clientName, totalSum, cart.length); notify("Уведомление отправлено менеджеру!"); } catch(e) { notify("Ошибка отправки Bark"); return; }
+            
+            // Сохраняем полную информацию о заказе
+            const orderFull = {
+                orderId: orderId,
+                client: { ...client },
+                items: [...cart],
+                totalSum: totalSum,
+                timestamp: Date.now(),
+                status: 'pending'
+            };
+            saveOrderDetails(orderId, orderFull);
             setOrderStatus(orderId, 'pending');
+            
+            try { await sendBarkNotification(orderId, clientName, totalSum, cart.length); notify("📱 Уведомление отправлено менеджеру!"); } catch(e) { notify("Ошибка отправки Bark"); return; }
+            
             document.getElementById('statusModal').classList.add('active');
             document.getElementById('waitBox').classList.remove('hidden');
             document.getElementById('successBox').classList.add('hidden');
             document.getElementById('rejectedBox').classList.add('hidden');
+            
             if(statusPoller) clearInterval(statusPoller);
+            // Периодическая проверка статуса (резервный механизм)
             statusPoller = setInterval(() => {
                 const status = getOrderStatus(orderId);
                 if(status === 'approved') {
                     clearInterval(statusPoller);
-                    document.getElementById('waitBox').classList.add('hidden');
-                    document.getElementById('successBox').classList.remove('hidden');
-                    cart = []; updateCartUI();
-                    const cartSidebar = document.getElementById('cartBox');
-                    if(cartSidebar.classList.contains('open')) cartSidebar.classList.remove('open');
-                    notify("Заказ подтверждён! Спасибо за покупку!");
+                    if(document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
+                        document.getElementById('waitBox').classList.add('hidden');
+                        document.getElementById('successBox').classList.remove('hidden');
+                        cart = []; updateCartUI();
+                        if(document.getElementById('cartBox').classList.contains('open')) document.getElementById('cartBox').classList.remove('open');
+                        notify("✅ Заказ подтверждён! Спасибо за покупку!");
+                        currentOrderId = null;
+                    }
                 } else if(status === 'rejected') {
                     clearInterval(statusPoller);
-                    document.getElementById('waitBox').classList.add('hidden');
-                    document.getElementById('rejectedBox').classList.remove('hidden');
-                    notify("Заказ отклонён менеджером.");
+                    if(document.getElementById('waitBox') && !document.getElementById('waitBox').classList.contains('hidden')) {
+                        document.getElementById('waitBox').classList.add('hidden');
+                        document.getElementById('rejectedBox').classList.remove('hidden');
+                        notify("❌ Заказ отклонён менеджером.");
+                        currentOrderId = null;
+                    }
                 }
-            }, 4000);
-            setTimeout(() => { if(statusPoller) { clearInterval(statusPoller); if(!document.getElementById('waitBox').classList.contains('hidden')) { notify("Время ожидания истекло."); document.getElementById('statusModal').classList.remove('active'); } } }, 600000);
+            }, 3000);
+            // Таймаут ожидания 10 минут
+            setTimeout(() => { if(statusPoller) { clearInterval(statusPoller); if(!document.getElementById('waitBox').classList.contains('hidden')) { notify("⏳ Время ожидания истекло. Попробуйте позже."); document.getElementById('statusModal').classList.remove('active'); } } }, 600000);
         }
     </script>
 </body>
-</html>     
+</html>
