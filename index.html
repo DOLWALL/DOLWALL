@@ -3,52 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>EliteArchangelSHOP — сайты и боты</title>
+    <title>ВИЗИТ — ресторан</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f0f0f;
-            --accent: #6366f1;
-            --accent-light: #c7d2fe;
-            --accent-subtle: #eef2ff;
-            --white: #ffffff;
-            --bg: #f3f4f6;
-            --card-bg: #fafafa;
-            --border: #e5e7eb;
-            --text-secondary: #6b7280;
-            --transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
-            --transition-fast: all 0.35s cubic-bezier(0.19, 1, 0.22, 1);
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.1);
-            --shadow-glow: 0 0 0 1px rgba(99, 102, 241, 0.15), 0 20px 50px rgba(99, 102, 241, 0.08);
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --primary-light: #14b8a6;
+            --accent: #0369a1;
+            --accent-light: #38bdf8;
+            --accent-glow: #7dd3fc;
+            --surface: #ffffff;
+            --bg: #f0f9ff;
+            --bg-alt: #ecfeff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --gold: #f59e0b;
+            --transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            --transition-fast: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 25px 60px rgba(15, 118, 110, 0.12);
+            --radius-sm: 14px;
+            --radius: 20px;
+            --radius-lg: 32px;
+            --radius-xl: 48px;
         }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
         }
+
         html {
             scroll-behavior: smooth;
+            font-family: 'Montserrat', sans-serif;
         }
+
         body {
             background: var(--bg);
-            color: var(--primary);
+            color: var(--text);
             overflow-x: hidden;
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: background 0.8s ease;
         }
+
         body.no-scroll {
             overflow: hidden;
         }
 
-        /* ==================== АНИМАЦИИ ==================== */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Playfair Display', 'Montserrat', serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* ============ АНИМАЦИИ ============ */
         @keyframes reveal {
             from {
                 opacity: 0;
-                transform: translateY(70px) scale(0.93);
-                filter: blur(6px);
+                transform: translateY(70px) scale(0.94);
+                filter: blur(8px);
             }
             to {
                 opacity: 1;
@@ -56,15 +84,28 @@
                 filter: blur(0);
             }
         }
-        @keyframes logo-glow {
-            0% {
-                filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
+        @keyframes revealLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-60px);
+                filter: blur(6px);
             }
-            50% {
-                filter: drop-shadow(0 0 35px rgba(99, 102, 241, 0.7)) drop-shadow(0 0 60px rgba(99, 102, 241, 0.3));
+            to {
+                opacity: 1;
+                transform: translateX(0);
+                filter: blur(0);
             }
-            100% {
-                filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
+        }
+        @keyframes revealRight {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+                filter: blur(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+                filter: blur(0);
             }
         }
         @keyframes fadeSlideDown {
@@ -100,8 +141,53 @@
             100% {
                 transform: translateY(0);
             }
+            30% {
+                transform: translateY(-20px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+            70% {
+                transform: translateY(-16px);
+            }
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(3, 105, 161, 0.4);
+            }
+            50% {
+                transform: scale(1.04);
+                box-shadow: 0 0 0 20px rgba(3, 105, 161, 0);
+            }
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
             50% {
                 transform: translateY(-18px);
+            }
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
             }
         }
         @keyframes slideOutStatus {
@@ -113,14 +199,13 @@
                 opacity: 0;
                 transform: scale(0.85) translateY(-40px);
                 pointer-events: none;
-                filter: blur(8px);
             }
         }
         @keyframes scaleUpFade {
             0% {
                 opacity: 0;
                 transform: scale(0.4);
-                filter: blur(14px);
+                filter: blur(16px);
             }
             100% {
                 opacity: 1;
@@ -137,42 +222,46 @@
             100% {
                 opacity: 1;
                 transform: translateY(0);
-                letter-spacing: 3px;
-            }
-        }
-        @keyframes shimmer {
-            0% {
-                background-position: -200% center;
-            }
-            100% {
-                background-position: 200% center;
-            }
-        }
-        @keyframes pulse-subtle {
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 0 18px rgba(99, 102, 241, 0);
-            }
-        }
-        @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
+                letter-spacing: 4px;
             }
         }
         @keyframes borderGlow {
             0%,
             100% {
-                border-color: var(--border);
+                border-color: var(--accent-light);
+                box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
             }
             50% {
-                border-color: var(--accent-light);
+                border-color: var(--primary-light);
+                box-shadow: 0 0 30px rgba(20, 184, 166, 0.5);
+            }
+        }
+        @keyframes spin-slow {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
             }
         }
 
@@ -180,7 +269,7 @@
             animation: slideOutStatus 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .anim-show {
-            display: block !important;
+            display: flex !important;
             animation: scaleUpFade 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         .anim-text {
@@ -195,32 +284,39 @@
             opacity: 0;
             pointer-events: none;
             transition: 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: blur(4px);
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        /* ==================== УВЕДОМЛЕНИЯ ==================== */
+        /* ============ TOAST ============ */
         #toastBox {
             position: fixed;
             top: 24px;
             right: 24px;
             z-index: 11000;
             width: auto;
-            max-width: 420px;
+            max-width: 440px;
             pointer-events: none;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
         .toast {
-            background: rgba(15, 15, 15, 0.94);
+            background: rgba(15, 118, 110, 0.94);
             color: #fff;
             padding: 16px 24px;
             border-radius: 60px;
             display: flex;
             align-items: center;
             gap: 14px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.35);
-            border-left: 5px solid var(--accent);
+            box-shadow: 0 20px 45px rgba(15, 118, 110, 0.3), 0 0 0 2px rgba(56, 189, 248, 0.25);
             font-weight: 600;
             font-size: 0.95rem;
             backdrop-filter: blur(12px);
@@ -232,185 +328,279 @@
         }
         .toast i {
             font-size: 1.4rem;
-            color: var(--accent);
+            color: #7dd3fc;
+        }
+        .toast.success {
+            background: rgba(16, 185, 129, 0.94);
+            box-shadow: 0 20px 45px rgba(16, 185, 129, 0.3), 0 0 0 2px rgba(52, 211, 153, 0.3);
+        }
+        .toast.error {
+            background: rgba(239, 68, 68, 0.94);
+            box-shadow: 0 20px 45px rgba(239, 68, 68, 0.3), 0 0 0 2px rgba(252, 165, 165, 0.3);
         }
 
-        /* ==================== INTRO ==================== */
+        /* ============ INTRO ============ */
         #introScreen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #0a0a0f;
+            background: linear-gradient(135deg, #0c4a6e 0%, #0f766e 30%, #0369a1 60%, #0c4a6e 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
             z-index: 10000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
+            overflow: hidden;
         }
         #introScreen::before {
             content: '';
             position: absolute;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
             border-radius: 50%;
+            background: radial-gradient(circle, rgba(125, 211, 252, 0.2) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
             animation: float 6s ease-in-out infinite;
+        }
+        #introScreen::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.2) 0%, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        .intro-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
+            overflow: hidden;
+        }
+        .intro-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: confetti-fall linear infinite;
         }
         .intro-logo {
-            font-size: clamp(2.2rem, 8vw, 4rem);
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 11vw, 6rem);
             font-weight: 900;
-            color: var(--white);
-            letter-spacing: 10px;
-            margin-bottom: 40px;
-            animation: logo-glow 3s infinite;
+            color: #ffffff;
+            letter-spacing: 18px;
+            margin-bottom: 20px;
             position: relative;
             z-index: 1;
+            text-shadow: 0 0 80px rgba(125, 211, 252, 0.5);
+            animation: textReveal 1.2s ease-out forwards;
         }
-        .intro-logo span {
-            color: var(--accent);
+        .intro-logo .accent-letter {
+            color: #7dd3fc;
+            display: inline-block;
+            animation: bounce 2s infinite;
+            animation-delay: 1.2s;
+        }
+        .intro-subtitle {
+            font-family: 'Montserrat', sans-serif;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+            position: relative;
+            z-index: 1;
+            animation: fadeSlideDown 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+            opacity: 0;
+            animation-fill-mode: forwards;
         }
         .intro-btn {
-            padding: 22px 60px;
+            padding: 20px 55px;
             background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-            font-size: 1.1rem;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            color: #ffffff;
+            font-size: 1rem;
             cursor: pointer;
             border-radius: 60px;
-            transition: var(--transition-fast);
+            transition: var(--transition);
             text-transform: uppercase;
-            font-weight: 900;
-            letter-spacing: 2px;
+            font-weight: 700;
+            letter-spacing: 3px;
             position: relative;
             z-index: 1;
             overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
         }
         .intro-btn::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--accent);
-            transition: 0.5s;
-            z-index: -1;
+            inset: 0;
+            background: linear-gradient(135deg, #0f766e, #0369a1);
+            opacity: 0;
+            transition: opacity 0.5s;
             border-radius: 60px;
-        }
-        .intro-btn:hover::before {
-            left: 0;
+            z-index: -1;
         }
         .intro-btn:hover {
+            border-color: transparent;
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px rgba(3, 105, 161, 0.4);
             color: #fff;
-            transform: scale(1.06);
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+        }
+        .intro-btn:hover::before {
+            opacity: 1;
         }
 
-        /* ==================== MODALS ==================== */
+        /* ============ MODAL OVERLAY ============ */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(30px);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
             z-index: 9000;
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: 0.5s;
+            transition: opacity 0.5s ease;
         }
         .modal-overlay.active {
             opacity: 1;
             pointer-events: all;
         }
         .modal-content {
-            background: var(--white);
+            background: var(--surface);
             width: 95%;
-            max-width: 550px;
-            padding: 50px;
-            border-radius: 40px;
-            transform: scale(0.78);
-            transition: 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 580px;
+            padding: 45px 40px;
+            border-radius: var(--radius-lg);
+            transform: scale(0.8);
+            transition: transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: center;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
+            box-shadow: var(--shadow-xl);
+            position: relative;
         }
         .modal-overlay.active .modal-content {
             transform: scale(1);
         }
+        .modal-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--primary-dark);
+        }
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             text-align: left;
         }
         .input-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-size: 0.7rem;
-            color: #999;
+            color: var(--text-light);
             text-transform: uppercase;
             font-weight: 700;
             letter-spacing: 1px;
         }
         .input-group input,
-        .input-group textarea {
+        .input-group textarea,
+        .input-group select {
             width: 100%;
-            padding: 18px;
-            border: 2px solid #f0f0f0;
-            border-radius: 20px;
-            font-size: 1rem;
+            padding: 16px 18px;
+            border: 2px solid #e8ecf1;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
             outline: none;
-            transition: 0.4s;
-            background: #fbfbfb;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            transition: var(--transition-fast);
+            background: #fafbfc;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+        }
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            border-color: var(--primary-light);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.08);
         }
         .input-group textarea {
             min-height: 80px;
             resize: vertical;
         }
-        .input-group input:focus,
-        .input-group textarea:focus {
-            border-color: var(--accent);
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        .input-group .input-icon {
+            position: relative;
+        }
+        .input-group .input-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.3s;
+        }
+        .input-group .input-icon input {
+            padding-left: 44px;
+        }
+        .input-group .input-icon input:focus+i,
+        .input-group .input-icon input:focus~i {
+            color: var(--primary-light);
         }
 
-        /* ==================== HEADER ==================== */
+        /* ============ HEADER ============ */
         header {
             position: sticky;
             top: 0;
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            padding: 25px 5%;
+            padding: 20px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 1000;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.04);
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(15, 118, 110, 0.08);
+            transition: var(--transition-fast);
+        }
+        header.scrolled {
+            padding: 14px 5%;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
         }
         .header-logo {
-            font-size: 1.8rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
             font-weight: 900;
-            letter-spacing: 3px;
+            letter-spacing: 5px;
             cursor: pointer;
+            color: var(--primary-dark);
             transition: var(--transition-fast);
+        }
+        .header-logo .accent-letter {
+            color: var(--accent);
         }
         .header-logo:hover {
             transform: scale(1.03);
-        }
-        .header-logo span {
-            color: var(--accent);
+            text-shadow: 0 0 30px rgba(3, 105, 161, 0.2);
         }
         .header-buttons {
             display: flex;
@@ -420,272 +610,432 @@
         }
         .nav-btn {
             background: transparent;
-            border: 1.5px solid var(--border);
-            color: var(--primary);
-            padding: 10px 20px;
+            border: 1.5px solid #dce5ec;
+            color: var(--text);
+            padding: 10px 18px;
             border-radius: 40px;
-            font-weight: 700;
-            font-size: 0.85rem;
+            font-weight: 600;
+            font-size: 0.82rem;
             cursor: pointer;
             transition: var(--transition-fast);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
+            font-family: 'Montserrat', sans-serif;
             white-space: nowrap;
         }
         .nav-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(15, 118, 110, 0.25);
+        }
+        .nav-btn.accent-btn {
             background: var(--accent);
             color: #fff;
-            transform: translateY(-3px);
             border-color: var(--accent);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+            animation: pulse 3s infinite;
+        }
+        .nav-btn.accent-btn:hover {
+            background: #0284c7;
+            animation: none;
+            box-shadow: 0 15px 35px rgba(3, 105, 161, 0.4);
+        }
+        .cart-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: #fff;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            transition: var(--transition-fast);
         }
 
-        /* ==================== HERO ==================== */
+        /* ============ HERO ============ */
         .hero {
-            height: 50vh;
-            min-height: 400px;
-            background: linear-gradient(rgba(15, 15, 15, 0.85), rgba(15, 15, 15, 0.5)),
-                url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=2000');
+            min-height: 55vh;
+            background: linear-gradient(160deg,
+                    rgba(12, 74, 110, 0.85) 0%,
+                    rgba(15, 118, 110, 0.7) 40%,
+                    rgba(3, 105, 161, 0.8) 100%),
+                url('file1.png');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: #fff;
+            color: white;
             text-align: center;
-            padding: 20px;
+            padding: 40px 20px;
             position: relative;
             overflow: hidden;
         }
         .hero::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: -2px;
             left: 0;
             width: 100%;
             height: 80px;
-            background: linear-gradient(to top, var(--bg), transparent);
-            pointer-events: none;
+            background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 9vw, 5rem);
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 12px;
+            animation: reveal 1s ease-out;
+        }
+        .hero .tagline {
+            color: #7dd3fc;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: fadeSlideDown 0.8s ease-out;
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 35px;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: reveal 1s ease-out;
+            animation-delay: 0.5s;
+            animation-fill-mode: both;
+        }
+        .hero-cta {
+            padding: 18px 36px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .hero-cta.primary-cta {
+            background: #fff;
+            color: var(--primary-dark);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        .hero-cta.primary-cta:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 55px rgba(0, 0, 0, 0.3);
+            background: #f0f9ff;
+        }
+        .hero-cta.secondary-cta {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            color: #fff;
+        }
+        .hero-cta.secondary-cta:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #fff;
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
         }
 
-        /* ==================== CATALOG ==================== */
+        /* ============ SECTION TITLES ============ */
+        .section-title {
+            text-align: center;
+            padding: 50px 5% 20px;
+        }
+        .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            position: relative;
+            display: inline-block;
+        }
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-light), var(--accent-light));
+            border-radius: 2px;
+        }
+
+        /* ============ CATALOG ============ */
         .catalog-container {
-            padding: 80px 5%;
+            padding: 40px 5% 80px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 35px;
             max-width: 1400px;
             margin: 0 auto;
         }
         .product-card {
-            background: var(--white);
-            border-radius: 30px;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-lg);
             transition: var(--transition);
-            animation: reveal 0.9s backwards;
             position: relative;
-            border: 1px solid var(--border);
-            cursor: default;
+            cursor: pointer;
+            border: 1px solid transparent;
         }
         .product-card:hover {
             transform: translateY(-16px);
-            box-shadow: var(--shadow-glow);
-            border-color: var(--accent-light);
-            animation: borderGlow 3s ease-in-out infinite;
-        }
-        .product-card:nth-child(1) {
-            animation-delay: 0.05s;
-        }
-        .product-card:nth-child(2) {
-            animation-delay: 0.1s;
-        }
-        .product-card:nth-child(3) {
-            animation-delay: 0.15s;
-        }
-        .product-card:nth-child(4) {
-            animation-delay: 0.2s;
-        }
-        .product-card:nth-child(5) {
-            animation-delay: 0.25s;
-        }
-        .product-card:nth-child(6) {
-            animation-delay: 0.3s;
-        }
-        .product-card:nth-child(7) {
-            animation-delay: 0.35s;
-        }
-        .product-card:nth-child(8) {
-            animation-delay: 0.4s;
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(15, 118, 110, 0.15);
         }
         .product-img {
-            height: 280px;
+            height: 320px;
             background-size: cover;
             background-position: center;
-            transition: 1.8s cubic-bezier(0.19, 1, 0.22, 1);
-            position: relative;
-        }
-        .product-img::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: linear-gradient(to top, rgba(255, 255, 255, 0.6), transparent);
-            pointer-events: none;
+            transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         .product-card:hover .product-img {
             transform: scale(1.08);
         }
+        .product-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 118, 110, 0.9);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            backdrop-filter: blur(8px);
+            z-index: 2;
+        }
         .product-price {
             position: absolute;
-            top: 22px;
-            right: 22px;
-            background: rgba(15, 15, 15, 0.88);
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 60px;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-dark);
+            padding: 10px 20px;
+            border-radius: 40px;
             font-weight: 800;
-            backdrop-filter: blur(12px);
+            font-size: 1rem;
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow);
             z-index: 2;
-            letter-spacing: 0.5px;
+            transition: var(--transition-fast);
+        }
+        .product-card:hover .product-price {
+            background: var(--primary);
+            color: #fff;
         }
         .product-body {
-            padding: 35px;
+            padding: 28px 24px;
             text-align: center;
         }
         .product-body h3 {
-            font-size: 1.2rem;
-            font-weight: 800;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
             margin-bottom: 6px;
+            color: var(--text);
         }
-        .product-body p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+        .product-body .type-tag {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
         .product-btn {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             background: var(--primary);
             color: #fff;
             border: none;
-            border-radius: 18px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: var(--transition-fast);
-            font-weight: 800;
-            margin-top: 20px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-        .product-btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: 0.6s;
-            transform: translate(-50%, -50%);
-        }
-        .product-btn:active::after {
-            width: 400px;
-            height: 400px;
+            font-size: 0.85rem;
+            font-family: 'Montserrat', sans-serif;
         }
         .product-btn:hover {
-            background: var(--accent);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35);
+            background: var(--primary-dark);
+            box-shadow: 0 10px 30px rgba(15, 118, 110, 0.3);
             transform: translateY(-2px);
         }
 
-        /* ==================== SIDEBAR CART ==================== */
+        /* ============ SIDEBAR CART ============ */
         .cart-sidebar {
             position: fixed;
             top: 0;
             right: 0;
-            width: 500px;
-            max-width: 100%;
+            width: 480px;
+            max-width: 100vw;
             height: 100%;
-            background: var(--white);
+            background: var(--surface);
             z-index: 9500;
             transform: translateX(100%);
             transition: var(--transition);
             box-shadow: -30px 0 80px rgba(0, 0, 0, 0.12);
             display: flex;
             flex-direction: column;
-            padding: 40px;
-            border-left: 1px solid var(--border);
+            padding: 40px 30px;
+            border-radius: var(--radius-xl) 0 0 var(--radius-xl);
         }
         .cart-sidebar.open {
             transform: translateX(0);
+        }
+        .cart-sidebar h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
         }
         .cart-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #eee;
+            padding: 18px 0;
+            border-bottom: 1px solid #f1f5f9;
+            animation: reveal 0.4s ease-out;
+        }
+        .cart-item .remove-btn {
+            color: var(--danger);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
             transition: var(--transition-fast);
         }
-        .cart-item:hover {
-            background: #fafafa;
-            padding-left: 8px;
-            padding-right: 8px;
-            border-radius: 12px;
+        .cart-item .remove-btn:hover {
+            background: #fef2f2;
+            transform: scale(1.2);
         }
 
         .loader-icon {
             font-size: 5rem;
-            color: var(--accent);
-            margin-bottom: 30px;
-            animation: rotate 2s linear infinite;
+            color: var(--primary-light);
+            margin-bottom: 25px;
+            animation: spin-slow 3s linear infinite;
         }
 
-        /* ==================== RESPONSIVE ==================== */
+        /* ============ MODE INDICATOR ============ */
+        .mode-banner {
+            background: linear-gradient(135deg, #ecfeff, #e0f2fe);
+            padding: 14px 5%;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(3, 105, 161, 0.1);
+            animation: fadeSlideDown 0.5s ease;
+        }
+        .mode-banner i {
+            animation: pulse 2s infinite;
+        }
+
+        /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
             .cart-sidebar {
                 width: 100%;
+                border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+                height: 90%;
+                top: auto;
+                bottom: 0;
+                transform: translateY(100%);
+            }
+            .cart-sidebar.open {
+                transform: translateY(0);
             }
             header {
                 flex-direction: column-reverse;
-                padding: 18px 5%;
-                gap: 12px;
+                padding: 15px 5%;
+                gap: 10px;
             }
             .header-buttons {
                 justify-content: center;
                 width: 100%;
-                gap: 8px;
+                gap: 6px;
+            }
+            .nav-btn {
+                padding: 8px 13px;
+                font-size: 0.7rem;
+                gap: 4px;
             }
             .header-logo {
                 text-align: center;
-                margin-bottom: 6px;
-            }
-            .nav-btn {
-                padding: 8px 14px;
-                font-size: 0.75rem;
-                gap: 5px;
-            }
-            .catalog-container {
-                padding: 40px 4%;
-                gap: 24px;
-                grid-template-columns: 1fr;
-            }
-            .modal-content {
-                padding: 30px 22px;
-                border-radius: 28px;
+                margin-bottom: 5px;
+                font-size: 1.5rem;
             }
             .hero {
-                height: 35vh;
-                min-height: 280px;
+                min-height: 45vh;
+                background-attachment: scroll;
+            }
+            .hero h1 {
+                letter-spacing: 4px;
+            }
+            .catalog-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+                padding: 30px 4% 60px;
             }
             .product-img {
-                height: 220px;
+                height: 240px;
+            }
+            .modal-content {
+                padding: 30px 20px;
+                border-radius: var(--radius);
+            }
+            .hero-buttons {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                padding: 0 20px;
+            }
+            .hero-cta {
+                width: 100%;
+                justify-content: center;
+                padding: 16px 24px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .intro-logo {
+                letter-spacing: 8px;
+            }
+            .intro-btn {
+                padding: 16px 35px;
+                font-size: 0.85rem;
+                letter-spacing: 1px;
+            }
+            .catalog-container {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .header-buttons {
+                gap: 4px;
+            }
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 0.65rem;
             }
         }
     </style>
@@ -693,85 +1043,145 @@
 <body class="no-scroll">
     <div id="toastBox"></div>
 
-    <!-- ==================== INTRO SCREEN ==================== -->
+    <!-- ==================== INTRO ==================== -->
     <div id="introScreen">
-        <div class="intro-logo">ELITE<span>ARCHANGEL</span>SHOP</div>
-        <button class="intro-btn" onclick="startSystem()">Открыть витрину</button>
-    </div>
-
-    <!-- ==================== MODAL: ОФОРМЛЕНИЕ ЗАКАЗА ==================== -->
-    <div id="regModal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 style="margin-bottom:30px; font-weight:900; letter-spacing:1px;">Оформление заказа</h2>
-            <div class="input-group"><label>Фамилия</label><input type="text" id="userLName" placeholder="Иванов"></div>
-            <div class="input-group"><label>Имя и Отчество</label><input type="text" id="userFName" placeholder="Александр Сергеевич"></div>
-            <div class="input-group"><label>Контактный телефон</label><input type="tel" id="userPhone" placeholder="+7 (___) ___-__-__"></div>
-            <div class="input-group"><label>Telegram / Email</label><input type="text" id="userAddr" placeholder="@username или email@mail.ru"></div>
-            <div class="input-group"><label>Комментарий к заказу</label><textarea id="userComment" placeholder="Опишите ваш проект: тип сайта, функционал бота, пожелания..."></textarea></div>
-            <button class="intro-btn" style="width:100%; border-radius:20px; background:var(--primary); color:#fff; border:none;"
-            onclick="completeRegAndOrder()">Подтвердить</button>
-        </div>
+        <div class="intro-particles" id="introParticles"></div>
+        <div class="intro-logo">ВИЗ<span class="accent-letter">И</span>Т</div>
+        <p class="intro-subtitle">Ресторан • Бронирование • Доставка</p>
+        <button class="intro-btn" onclick="startSystem()">Открыть меню</button>
     </div>
 
     <!-- ==================== MAIN UI ==================== -->
     <div id="mainUI" class="hidden">
-        <header>
+        <!-- Mode Banner -->
+        <div id="modeBanner" class="mode-banner hidden">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="modeBannerText">Режим: Заказ блюд</span>
+        </div>
+
+        <!-- Header -->
+        <header id="mainHeader">
             <div class="header-buttons">
                 <button class="nav-btn" onclick="openDevModal()"><i class="fa-solid fa-code"></i> Dev</button>
                 <button class="nav-btn" onclick="openSupportModal()"><i class="fa-regular fa-circle-question"></i> Поддержка</button>
-                <button class="nav-btn" onclick="openCompanyModal()"><i class="fa-regular fa-building"></i> О нас</button>
-                <button class="nav-btn" onclick="toggleCart()"><i class="fa-solid fa-bag-shopping"></i> Корзина (<span id="cartCount">0</span>)</button>
+                <button class="nav-btn" onclick="openAboutModal()"><i class="fa-regular fa-building"></i> О нас</button>
+                <button class="nav-btn" onclick="toggleCart()"><i class="fa-solid fa-bag-shopping"></i> Корзина <span class="cart-badge" id="cartCount">0</span></button>
             </div>
-            <div class="header-logo" onclick="location.reload()">ELITE<span>ARCHANGEL</span>SHOP</div>
+            <div class="header-logo" onclick="location.reload()">ВИЗ<span class="accent-letter">И</span>Т</div>
         </header>
 
+        <!-- Hero -->
         <div class="hero">
-            <h1 style="font-size:clamp(2rem,8vw,4rem); margin-bottom:15px; font-weight:900; letter-spacing:3px;">ELITEARCHANGELSHOP</h1>
-            <p style="color:var(--accent-light); letter-spacing:5px; text-transform:uppercase; font-weight:600;">Сайты и Telegram боты под ключ</p>
+            <h1>ВИЗИТ</h1>
+            <p class="tagline">Искусство вкуса • Атмосфера уюта</p>
+            <div class="hero-buttons">
+                <button class="hero-cta primary-cta" onclick="setImmediateMode()">
+                    <i class="fa-solid fa-utensils"></i> Я в ресторане
+                </button>
+                <button class="hero-cta secondary-cta" onclick="openBookingModal()">
+                    <i class="fa-regular fa-calendar-check"></i> Забронировать столик
+                </button>
+            </div>
         </div>
 
+        <!-- Section Title -->
+        <div class="section-title"><h2>Наше меню</h2></div>
+
+        <!-- Catalog -->
         <div class="catalog-container" id="catalogGrid"></div>
     </div>
 
     <!-- ==================== CART SIDEBAR ==================== -->
     <div id="cartBox" class="cart-sidebar">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-            <h2 style="font-size:2rem; font-weight:900;">Корзина</h2>
-            <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:2rem; transition:0.3s;" onclick="toggleCart()"></i>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:35px;">
+            <h2>Корзина</h2>
+            <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.8rem; color:var(--text-light);" onclick="toggleCart()"></i>
         </div>
-        <div id="cartItems" style="flex-grow:1; overflow-y:auto;"></div>
-        <div style="padding-top:30px; border-top:2px solid #f0f0f0;">
-            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.5rem; margin-bottom:30px;">
-                <span>Итого:</span><span id="cartTotalSum">0₽</span>
+        <div id="cartItems" style="flex-grow:1; overflow-y:auto; padding-right:5px;"></div>
+        <div style="padding-top:25px; border-top:2px solid #f1f5f9;">
+            <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.4rem; margin-bottom:25px;">
+                <span>Итого:</span><span id="cartTotalSum">0 ₽</span>
             </div>
-            <button class="intro-btn" style="width:100%; background:var(--primary); color:#fff; border:none;" onclick="requestOrder()">Оформить заказ</button>
+            <button class="intro-btn" style="width:100%; background:var(--primary); color:#fff; border:none; border-radius:var(--radius-sm);"
+            onclick="requestOrder()">Оформить заказ</button>
+        </div>
+    </div>
+
+    <!-- ==================== BOOKING MODAL ==================== -->
+    <div id="bookingModal" class="modal-overlay">
+        <div class="modal-content">
+            <i class="fa-solid fa-calendar-star" style="font-size:3rem; color:var(--primary-light); margin-bottom:15px;"></i>
+            <h2>Забронировать столик</h2>
+            <p style="color:var(--text-light); margin-bottom:20px; font-size:0.9rem;">Выберите дату, время и повод</p>
+            <div class="input-group"><label>Дата</label><input type="date" id="bookingDate" min="" class="booking-input"></div>
+            <div class="input-group"><label>Время</label><input type="time" id="bookingTime" class="booking-input"></div>
+            <div class="input-group"><label>Количество гостей</label>
+                <select id="bookingGuests">
+                    <option value="1">1 гость</option><option value="2" selected>2 гостя</option>
+                    <option value="3">3 гостя</option><option value="4">4 гостя</option>
+                    <option value="5">5 гостей</option><option value="6">6 гостей</option>
+                    <option value="7">7 гостей</option><option value="8+">8 и более</option>
+                </select>
+            </div>
+            <div class="input-group"><label>Тип события</label>
+                <select id="bookingEvent">
+                    <option value="Свидание">💕 Свидание</option>
+                    <option value="День рождения">🎂 День рождения</option>
+                    <option value="Деловая встреча">💼 Деловая встреча</option>
+                    <option value="Семейный ужин">👨‍👩‍👧‍👦 Семейный ужин</option>
+                    <option value="Дружеская встреча">🥂 Дружеская встреча</option>
+                    <option value="Особый повод">✨ Особый повод</option>
+                </select>
+            </div>
+            <div class="input-group"><label>Особые пожелания</label><textarea id="bookingNotes" placeholder="Аллергии, предпочтения по столу, декор..."></textarea></div>
+            <button class="intro-btn" style="width:100%; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm);"
+            onclick="confirmBooking()">Подтвердить бронирование</button>
+            <button style="background:none; border:none; color:var(--text-light); margin-top:12px; cursor:pointer; font-size:0.85rem;"
+            onclick="closeBookingModal()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- ==================== REGISTRATION MODAL (упрощённая) ==================== -->
+    <div id="regModal" class="modal-overlay">
+        <div class="modal-content">
+            <i class="fa-solid fa-user-shield" style="font-size:3rem; color:var(--accent); margin-bottom:10px;"></i>
+            <h2>Данные для заказа</h2>
+            <p style="color:var(--text-light); font-size:0.8rem; margin-bottom:20px;">Надёжная защита данных • SSL-шифрование</p>
+            <div class="input-group"><label>Фамилия *</label><input type="text" id="userLName" placeholder="Иванов"></div>
+            <div class="input-group"><label>Имя и Отчество *</label><input type="text" id="userFName" placeholder="Александр Сергеевич"></div>
+            <div class="input-group"><label>Телефон *</label><input type="tel" id="userPhone" placeholder="+7 (___) ___-__-__"></div>
+            <div class="input-group"><label>Комментарий</label><textarea id="userComment" placeholder="Особые пожелания..."></textarea></div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; margin-bottom:18px; text-align:left; cursor:pointer;">
+                <input type="checkbox" id="agreeTerms" style="width:18px; height:18px; cursor:pointer;">
+                Согласен на обработку данных
+            </label>
+            <button class="intro-btn" style="width:100%; border-radius:var(--radius-sm); background:var(--primary); color:#fff; border:none;"
+            onclick="completeRegAndOrder()">Подтвердить и отправить</button>
         </div>
     </div>
 
     <!-- ==================== STATUS MODAL ==================== -->
     <div id="statusModal" class="modal-overlay">
-        <div class="modal-content" style="position:relative; overflow:hidden; min-height:350px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-            <div id="waitBox" style="position:absolute; width:100%; text-align:center;">
+        <div class="modal-content" style="position:relative; min-height:380px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <div id="waitBox" style="text-align:center; width:100%;">
                 <i class="fa-solid fa-spinner loader-icon"></i>
-                <h3>Ожидаем подтверждения...</h3>
-                <p style="color:var(--text-secondary);">Пожалуйста, не закрывайте страницу.</p>
+                <h3>Обрабатываем заказ...</h3>
+                <p style="color:var(--text-light);">Пожалуйста, не закрывайте страницу</p>
             </div>
-
-            <div id="successBox" class="hidden" style="position:absolute; width:100%; text-align:center;">
-                <i class="fa-solid fa-circle-check" style="font-size:5rem; color:#10b981; animation:bounce 2s infinite;"></i>
-                <h2 id="successText" style="color:#10b981; margin:20px 0;">ЗАКАЗ ПРИНЯТ!</h2>
-                <div style="background:#f9fafb; padding:25px; border-radius:25px; text-align:left; margin-bottom:25px; display:inline-block; width:100%; border:1px solid var(--border);">
-                    <p>💳 Оплата: СБП по номеру</p>
-                    <p>📞 Телефон: +7 (999) 561-45-25</p>
-                    <p>👤 Владелец: EliteArchangelSHOP</p>
+            <div id="successBox" class="hidden" style="text-align:center; width:100%;">
+                <i class="fa-solid fa-circle-check" style="font-size:5rem; color:var(--success); animation:bounce 2s infinite;"></i>
+                <h2 id="successText" style="color:var(--success); margin:20px 0;">ЗАКАЗ ПРИНЯТ!</h2>
+                <div style="background:#f8fafc; padding:20px; border-radius:var(--radius); text-align:left; margin-bottom:20px; font-size:0.9rem;">
+                    <p>💳 <b>Оплата:</b> СБП / карта</p>
+                    <p>📞 <b>Телефон ресторана:</b> +7 (999) 561-45-25</p>
+                    <p>📍 <b>Адрес:</b> ул. Вкусная, д. 10</p>
                 </div>
-                <a href="https://t.me/EliteArchangel" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none; display:block;">Написать в Telegram</a>
+                <a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none; display:block; border-radius:var(--radius-sm);">Написать в Telegram</a>
             </div>
-
-            <div id="rejectedBox" class="hidden" style="position:absolute; width:100%; text-align:center;">
-                <i class="fa-solid fa-circle-xmark" style="font-size:5rem; color:#e74c3c;"></i>
-                <h2 id="rejectText" style="margin:20px 0; color:#e74c3c;">ОТКЛОНЕНО</h2>
-                <a href="https://t.me/EliteArchangel" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none; display:block;">Связаться с нами</a>
+            <div id="rejectedBox" class="hidden" style="text-align:center; width:100%;">
+                <i class="fa-solid fa-circle-xmark" style="font-size:5rem; color:var(--danger);"></i>
+                <h2 id="rejectText" style="margin:20px 0; color:var(--danger);">ОТКЛОНЕНО</h2>
+                <a href="https://t.me/dolgov_offical" class="intro-btn" style="background:#0088cc; color:#fff; border:none; text-decoration:none; display:block; border-radius:var(--radius-sm);">Связаться с нами</a>
             </div>
         </div>
     </div>
@@ -780,66 +1190,67 @@
     <div id="devModal" class="modal-overlay">
         <div class="modal-content">
             <i class="fa-solid fa-terminal" style="font-size:3.5rem; color:var(--accent); margin-bottom:20px;"></i>
-            <h2 style="margin-bottom:20px; font-weight:900;">Dev Control Panel</h2>
-            <div style="text-align:left; background:#f9fafb; padding:25px; border-radius:25px; line-height:1.8; border:1px solid var(--border);">
+            <h2>Dev Control Panel</h2>
+            <div style="text-align:left; background:#f8fafc; padding:25px; border-radius:var(--radius); line-height:1.8; font-size:0.9rem;">
                 <p>🚀 <b>Разработчик:</b> @EliteArchangel</p>
-                <p>👑 <b>Владелец:</b> EliteArchangelSHOP</p>
-                <hr style="margin:15px 0; border:0; border-top:1px solid #e5e7eb;">
+                <p>👑 <b>Владелец:</b> ВИЗИТ</p>
+                <hr style="margin:12px 0; border:0; border-top:1px solid #e2e8f0;">
                 <p>🟢 System Status: Active</p>
                 <p>📡 Bark API: Connected</p>
                 <p>📬 Telegram Bot: Connected</p>
+                <p>🔐 SSL: Enabled</p>
             </div>
-            <button class="intro-btn" style="width:100%; margin-top:25px;" onclick="closeDevModal()">Закрыть</button>
+            <button class="intro-btn" style="width:100%; margin-top:20px; border-radius:var(--radius-sm);" onclick="closeDevModal()">Закрыть</button>
         </div>
     </div>
 
     <!-- ==================== SUPPORT MODAL ==================== -->
     <div id="supportModal" class="modal-overlay">
         <div class="modal-content">
-            <i class="fa-solid fa-headset" style="font-size:3.5rem; color:var(--accent); margin-bottom:20px;"></i>
-            <h2 style="margin-bottom:15px; font-weight:900;">Поддержка</h2>
-            <p style="margin-bottom:20px; color:var(--text-secondary);">Мы на связи 24/7</p>
-            <div style="background:#f9fafb; padding:20px; border-radius:25px; text-align:left; border:1px solid var(--border);">
+            <i class="fa-solid fa-headset" style="font-size:3.5rem; color:var(--primary-light); margin-bottom:20px;"></i>
+            <h2>Поддержка</h2>
+            <p style="margin-bottom:20px; color:var(--text-light);">Мы на связи 24/7</p>
+            <div style="background:#f8fafc; padding:20px; border-radius:var(--radius); text-align:left; font-size:0.9rem;">
                 <p>✈️ Telegram: <b>@EliteArchangel</b></p>
                 <p>📞 Тел: <b>+7 (999) 561-45-25</b></p>
+                <p>📧 Email: <b>visit@restaurant.ru</b></p>
             </div>
-            <button class="intro-btn" style="width:100%; margin-top:25px;" onclick="closeSupportModal()">Закрыть</button>
+            <button class="intro-btn" style="width:100%; margin-top:20px; border-radius:var(--radius-sm);" onclick="closeSupportModal()">Закрыть</button>
         </div>
     </div>
 
     <!-- ==================== ABOUT MODAL ==================== -->
-    <div id="companyModal" class="modal-overlay">
+    <div id="aboutModal" class="modal-overlay">
         <div class="modal-content" style="text-align:left; max-width:650px;">
             <div style="text-align:center; margin-bottom:25px;">
-                <i class="fa-solid fa-globe" style="font-size:3rem; color:var(--accent);"></i>
-                <h2 style="margin-top:10px; font-weight:900;">О EliteArchangelSHOP</h2>
+                <i class="fa-solid fa-utensils" style="font-size:3rem; color:var(--primary-light);"></i>
+                <h2 style="margin-top:10px;">О ресторане ВИЗИТ</h2>
             </div>
-            <div style="font-size:0.95rem; line-height:1.6;">
-                <p style="margin-bottom:15px;">Мы создаём современные веб-сайты и Telegram-ботов для бизнеса любого масштаба. Каждый проект — это индивидуальное решение, разработанное с учётом ваших целей и аудитории.</p>
-                <h4 style="margin:15px 0 10px; color:var(--accent);">🌐 Наши услуги:</h4>
+            <div style="font-size:0.95rem; line-height:1.7;">
+                <p style="margin-bottom:15px;">ВИЗИТ — это пространство, где гастрономия встречается с искусством. Мы создаём блюда, которые запоминаются, и атмосферу, в которую хочется возвращаться.</p>
+                <h4 style="margin:15px 0 8px; color:var(--primary-light);">🍽️ Наша кухня:</h4>
                 <ul style="margin-bottom:15px; padding-left:20px;">
-                    <li>Лендинг-пейдж и сайты-визитки</li>
-                    <li>Корпоративные многостраничные сайты</li>
-                    <li>Интернет-магазины и каталоги</li>
-                    <li>Telegram боты любой сложности</li>
-                    <li>Интеграция с CRM и платёжными системами</li>
+                    <li>Авторские блюда от шеф-повара</li>
+                    <li>Европейская и азиатская классика</li>
+                    <li>Сезонное меню из локальных продуктов</li>
+                    <li>Винная карта и коктейли</li>
+                    <li>Десерты собственного производства</li>
                 </ul>
-                <h4 style="margin:15px 0 10px; color:var(--accent);">✨ Почему выбирают нас:</h4>
-                <p style="margin-bottom:10px;"><b>Скорость:</b> Чёткие сроки, прозрачный процесс разработки.</p>
-                <p style="margin-bottom:10px;"><b>Дизайн:</b> Современный минималистичный стиль, адаптивная вёрстка.</p>
-                <p><b>Поддержка:</b> Бесплатное обслуживание в течение месяца после сдачи проекта.</p>
+                <h4 style="margin:15px 0 8px; color:var(--accent-light);">✨ Почему выбирают ВИЗИТ:</h4>
+                <p style="margin-bottom:8px;"><b>Качество:</b> Только свежие ингредиенты, проверенные поставщики.</p>
+                <p style="margin-bottom:8px;"><b>Атмосфера:</b> Уютный интерьер, живая музыка по вечерам.</p>
+                <p><b>Сервис:</b> Внимательный персонал, индивидуальный подход к каждому гостю.</p>
             </div>
-            <button class="intro-btn" style="width:100%; margin-top:30px; background:var(--primary); color:#fff;" onclick="closeCompanyModal()">Закрыть</button>
+            <button class="intro-btn" style="width:100%; margin-top:25px; background:var(--primary); color:#fff; border-radius:var(--radius-sm);"
+            onclick="closeAboutModal()">Закрыть</button>
         </div>
     </div>
 
     <script>
         // ==================== БАЗА ДАННЫХ ЗАКАЗОВ (localStorage) ====================
         const DB = {
-            _key: 'elitearch_orders',
-            getOrders() {
-                try { return JSON.parse(localStorage.getItem(this._key) || '{}'); } catch (e) { return {}; }
-            },
+            _key: 'visit_orders',
+            getOrders() { try { return JSON.parse(localStorage.getItem(this._key) || '{}'); } catch (e) { return {}; } },
             saveOrder(id, data) {
                 const orders = this.getOrders();
                 orders[id] = { ...data, createdAt: Date.now(), status: 'pending' };
@@ -847,20 +1258,12 @@
             },
             updateStatus(id, status) {
                 const orders = this.getOrders();
-                if (orders[id]) {
-                    orders[id].status = status;
+                if (orders[id]) { orders[id].status = status;
                     orders[id].updatedAt = Date.now();
-                    localStorage.setItem(this._key, JSON.stringify(orders));
-                }
+                    localStorage.setItem(this._key, JSON.stringify(orders)); }
             },
-            getOrderStatus(id) {
-                const orders = this.getOrders();
-                return orders[id] ? orders[id].status : null;
-            },
-            getOrderData(id) {
-                const orders = this.getOrders();
-                return orders[id] || null;
-            }
+            getOrderStatus(id) { const o = this.getOrders(); return o[id] ? o[id].status : null; },
+            getOrderData(id) { const o = this.getOrders(); return o[id] || null; }
         };
 
         // ==================== КОНФИГУРАЦИЯ ====================
@@ -869,167 +1272,260 @@
         const TELEGRAM_BOT_TOKEN = "8503933078:AAHXl8Y9dPKP6l3_iAQe7PhxNNVz6D21fTE";
         const TELEGRAM_CHAT_ID = "7316276135";
 
-        let client = JSON.parse(localStorage.getItem('elitearch_user')) || null;
+        let client = JSON.parse(localStorage.getItem('visit_user')) || null;
         let cart = [];
         let activeEventSource = null;
         let activeToast = null;
         let currentOrderId = null;
+        let currentMode = 'menu'; // 'menu' | 'immediate' | 'booking'
 
-        // ==================== ПРОДУКТЫ ====================
+        // ==================== ПРОДУКТЫ (ресторанное меню) ====================
         const products = [
-            // --- Сайты (5 000 – 20 000 ₽) ---
-            { id: 1, name: "Лендинг-пейдж", type: "Сайт • 1 страница", price: 5000,
-                img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop&q=80" },
-            { id: 2, name: "Сайт-визитка", type: "Сайт • 3–5 страниц", price: 7000,
-                img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=400&fit=crop&q=80" },
-            { id: 3, name: "Портфолио-сайт", type: "Сайт • Галерея работ", price: 8000,
-                img: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=400&h=400&fit=crop&q=80" },
-            { id: 4, name: "Корпоративный сайт", type: "Сайт • 10+ страниц", price: 12000,
-                img: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&h=400&fit=crop&q=80" },
-            { id: 5, name: "Интернет-магазин", type: "Сайт • E-commerce", price: 18000,
-                img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop&q=80" },
-            { id: 6, name: "Сайт-каталог", type: "Сайт • Каталог товаров", price: 14000,
-                img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop&q=80" },
-            { id: 7, name: "Блог / Новостной сайт", type: "Сайт • Статьи и новости", price: 10000,
-                img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=400&h=400&fit=crop&q=80" },
-            { id: 8, name: "Web-приложение", type: "Сайт • SPA / PWA", price: 20000,
-                img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=400&fit=crop&q=80" },
-            { id: 9, name: "Сайт под ключ (премиум)", type: "Сайт • Эксклюзивный дизайн", price: 19000,
-                img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=400&fit=crop&q=80" },
-            { id: 10, name: "Админ-панель", type: "Сайт • Управление контентом", price: 16000,
-                img: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=400&h=400&fit=crop&q=80" },
-
-            // --- Telegram Боты (2 000 – 5 000 ₽) ---
-            { id: 11, name: "Чат-бот (базовый)", type: "Бот • Автоответы", price: 2000,
-                img: "https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=400&h=400&fit=crop&q=80" },
-            { id: 12, name: "Бот-автоответчик", type: "Бот • FAQ / Поддержка", price: 2500,
-                img: "https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=400&h=400&fit=crop&q=80" },
-            { id: 13, name: "Бот для канала", type: "Бот • Администрирование", price: 3000,
-                img: "https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=400&h=400&fit=crop&q=80" },
-            { id: 14, name: "Бот-магазин", type: "Бот • Продажи в Telegram", price: 4000,
-                img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop&q=80" },
-            { id: 15, name: "Бот с админ-панелью", type: "Бот • Управление через Web", price: 4500,
-                img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=400&fit=crop&q=80" },
-            { id: 16, name: "Бот-рассылка", type: "Бот • Массовые уведомления", price: 3500,
-                img: "https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=400&h=400&fit=crop&q=80" },
-            { id: 17, name: "Бот с приёмом платежей", type: "Бот • Интеграция оплаты", price: 5000,
-                img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop&q=80" },
-            { id: 18, name: "Игровой бот", type: "Бот • Квесты / Викторины", price: 4000,
-                img: "https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=400&h=400&fit=crop&q=80" },
-            { id: 19, name: "Бот с ИИ (ChatGPT)", type: "Бот • Искусственный интеллект", price: 5000,
-                img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=400&fit=crop&q=80" },
-            { id: 20, name: "Премиум-бот (комплекс)", type: "Бот • Все функции включены", price: 5000,
-                img: "https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=400&h=400&fit=crop&q=80" }
+            { id: 1, name: "Стейк Рибай", type: "Горячее", price: 4200, img: "file1.png" },
+            { id: 2, name: "Паста Карбонара", type: "Паста", price: 1800, img: "file2.png" },
+            { id: 3, name: "Цезарь с креветками", type: "Салат", price: 1500, img: "file3.png" },
+            { id: 4, name: "Том Ям", type: "Суп", price: 1200, img: "file4.png" },
+            { id: 5, name: "Лосось на гриле", type: "Горячее", price: 3500, img: "file5.png" },
+            { id: 6, name: "Брускетта с томатами", type: "Закуска", price: 900, img: "file6.png" },
+            { id: 7, name: "Ризотто с грибами", type: "Горячее", price: 2100, img: "file7.png" },
+            { id: 8, name: "Тирамису", type: "Десерт", price: 950, img: "file8.png" },
+            { id: 9, name: "Чизкейк Нью-Йорк", type: "Десерт", price: 1100, img: "file9.png" },
+            { id: 10, name: "Крем-брюле", type: "Десерт", price: 800, img: "file10.png" },
+            { id: 11, name: "Суши-сет Филадельфия", type: "Суши", price: 2800, img: "file11.png" },
+            { id: 12, name: "Пицца Маргарита", type: "Пицца", price: 1600, img: "file12.png" },
+            { id: 13, name: "Бургер с говядиной", type: "Бургер", price: 1400, img: "file13.png" },
+            { id: 14, name: "Греческий салат", type: "Салат", price: 1100, img: "file14.png" },
+            { id: 15, name: "Креветки в соусе", type: "Закуска", price: 1900, img: "file15.png" },
+            { id: 16, name: "Утка конфи", type: "Горячее", price: 3800, img: "file16.png" },
+            { id: 17, name: "Фуа-гра", type: "Закуска", price: 4500, img: "file17.png" },
+            { id: 18, name: "Морской коктейль", type: "Горячее", price: 3200, img: "file18.png" },
+            { id: 19, name: "Панакота", type: "Десерт", price: 750, img: "file19.png" },
+            { id: 20, name: "Шоколадный фондан", type: "Десерт", price: 1050, img: "file20.png" }
         ];
 
-        // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
-        function notify(msg) {
+        // ==================== TOAST ====================
+        function notify(msg, type = '') {
             const box = document.getElementById('toastBox');
             if (activeToast) {
                 activeToast.classList.add('toast-removing');
                 setTimeout(() => { if (activeToast && activeToast.parentNode) activeToast.remove();
-                    makeToast(msg, box); }, 300);
-            } else {
-                makeToast(msg, box);
-            }
+                    makeToast(msg, box, type); }, 300);
+            } else { makeToast(msg, box, type); }
         }
 
-        function makeToast(msg, box) {
+        function makeToast(msg, box, type) {
             const t = document.createElement('div');
-            t.className = 'toast';
-            t.innerHTML = `<i class="fa-solid fa-check"></i> ${msg}`;
+            t.className = 'toast ' + type;
+            const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' :
+                'fa-check';
+            t.innerHTML = `<i class="fa-solid ${icon}"></i> ${msg}`;
             box.appendChild(t);
             activeToast = t;
             setTimeout(() => {
                 if (activeToast === t) {
                     t.classList.add('toast-removing');
-                    setTimeout(() => { if (t.parentNode) t.remove(); }, 300);
+                    setTimeout(() => { if (t.parentNode) t.remove(); }, 350);
                     activeToast = null;
                 }
-            }, 3000);
+            }, 3500);
         }
 
-        function getCartTotal() {
-            return cart.reduce((sum, item) => sum + (item.price || 0), 0);
-        }
+        function getCartTotal() { return cart.reduce((sum, item) => sum + (item.price || 0), 0); }
 
-        // ==================== TELEGRAM ОТПРАВКА ====================
+        // ==================== TELEGRAM ====================
         async function sendToTelegram(orderId, orderData) {
-            const { clientName, clientPhone, clientAddr, clientComment, itemsList, totalSum, itemCount } = orderData;
-            let messageText =
-                `💻 *НОВЫЙ ЗАКАЗ #${orderId}*\n\n` +
-                `👤 *Клиент:* ${clientName}\n` +
-                `📞 *Телефон:* ${clientPhone}\n` +
-                `📍 *Контакты:* ${clientAddr}\n` +
-                `💬 *Комментарий:* ${clientComment || 'нет'}\n\n` +
-                `🛒 *Состав заказа:*\n${itemsList}\n\n` +
-                `📦 *Всего позиций:* ${itemCount} шт.\n` +
-                `💰 *Сумма:* ${totalSum.toLocaleString()} ₽\n\n` +
+            const msg = `🍽️ *НОВЫЙ ЗАКАЗ #${orderId}*\n\n` +
+                `👤 *Клиент:* ${orderData.clientName}\n` +
+                `📞 *Телефон:* ${orderData.clientPhone}\n` +
+                `💬 *Комментарий:* ${orderData.clientComment || 'нет'}\n` +
+                `🎯 *Режим:* ${orderData.mode || 'меню'}\n` +
+                `📅 *Бронь:* ${orderData.bookingInfo || '—'}\n\n` +
+                `🛒 *Состав:*\n${orderData.itemsList}\n\n` +
+                `📦 *Позиций:* ${orderData.itemCount} шт.\n` +
+                `💰 *Сумма:* ${orderData.totalSum.toLocaleString()} ₽\n\n` +
                 `🔗 _Управление:_ ${window.location.origin}${window.location.pathname}?manage=${orderId}&data=${encodeURIComponent(JSON.stringify(orderData.raw))}`;
-
             try {
                 await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: messageText,
-                        parse_mode: 'Markdown',
-                        disable_web_page_preview: false
-                    })
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' })
                 });
-            } catch (e) {
-                console.warn('Telegram sendMessage error:', e);
-            }
-
+            } catch (e) { console.warn('TG send error:', e); }
             if (orderData.imageUrls && orderData.imageUrls.length > 0) {
                 for (const imgUrl of orderData.imageUrls) {
                     try {
                         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                chat_id: TELEGRAM_CHAT_ID,
-                                photo: imgUrl,
-                                caption: `📸 Товар (заказ #${orderId})`
-                            })
+                            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, photo: imgUrl,
+                                caption: `📸 Заказ #${orderId}` })
                         });
-                    } catch (e) {
-                        console.warn('Telegram sendPhoto error:', e);
-                    }
+                    } catch (e) { console.warn('TG photo error:', e); }
                 }
             }
         }
 
-        // ==================== ОФОРМЛЕНИЕ ЗАКАЗА ====================
-        function requestOrder() {
-            if (cart.length === 0) return notify("Корзина пуста!");
-            const cartBox = document.getElementById('cartBox');
-            if (cartBox.classList.contains('open')) {
-                cartBox.classList.remove('open');
+        // ==================== РЕЖИМЫ ====================
+        function setImmediateMode() {
+            currentMode = 'immediate';
+            const banner = document.getElementById('modeBanner');
+            banner.classList.remove('hidden');
+            document.getElementById('modeBannerText').textContent = 'Режим: Я в ресторане — заказ блюд к столу';
+            banner.style.background = 'linear-gradient(135deg, #d1fae5, #e0f2fe)';
+            notify('Режим "Я в ресторане" активирован. Добавляйте блюда в корзину!', 'success');
+            document.getElementById('catalogGrid').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function openBookingModal() {
+            currentMode = 'booking';
+            const modal = document.getElementById('bookingModal');
+            document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+            modal.classList.add('active');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.remove('active');
+            currentMode = 'menu';
+        }
+
+        function confirmBooking() {
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+            const guests = document.getElementById('bookingGuests').value;
+            const event = document.getElementById('bookingEvent').value;
+            const notes = document.getElementById('bookingNotes').value;
+            if (!date || !time) return notify('Выберите дату и время!', 'error');
+            const bookingInfo = `📅 ${date} в ${time}, 👥 ${guests}, 🎯 ${event}${notes ? ', 📝 ' + notes : ''}`;
+            localStorage.setItem('visit_booking', JSON.stringify({ date, time, guests, event, notes, bookingInfo }));
+            closeBookingModal();
+            notify('Бронирование сохранено! Теперь добавьте блюда в корзину и оформите заказ.', 'success');
+            const banner = document.getElementById('modeBanner');
+            banner.classList.remove('hidden');
+            document.getElementById('modeBannerText').textContent = 'Бронь: ' + bookingInfo;
+            banner.style.background = 'linear-gradient(135deg, #fef3c7, #e0f2fe)';
+            document.getElementById('catalogGrid').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ==================== UI ====================
+        function startSystem() {
+            const intro = document.getElementById('introScreen');
+            intro.classList.add('fade-out');
+            setTimeout(() => {
+                intro.style.display = 'none';
+                document.getElementById('mainUI').classList.remove('hidden');
+                document.body.classList.remove('no-scroll');
+                renderCatalog();
+                setupScrollReveal();
+                checkPendingOrderStatus();
+            }, 1200);
+        }
+
+        function renderCatalog() {
+            const g = document.getElementById('catalogGrid');
+            g.innerHTML = '';
+            products.forEach((p, i) => {
+                const card = document.createElement('div');
+                card.className = 'product-card reveal-on-scroll';
+                card.style.animationDelay = `${i * 0.04}s`;
+                card.innerHTML = `
+                    <div class="product-badge">${p.type}</div>
+                    <div class="product-price">${p.price.toLocaleString()} ₽</div>
+                    <div class="product-img" style="background-image:url('${p.img}')"></div>
+                    <div class="product-body">
+                        <h3>${p.name}</h3>
+                        <p class="type-tag">${p.type}</p>
+                        <button class="product-btn" onclick="addToCart(${p.id})">
+                            <i class="fa-solid fa-plus"></i> Добавить в корзину
+                        </button>
+                    </div>`;
+                g.appendChild(card);
+            });
+            setTimeout(() => setupScrollReveal(), 100);
+        }
+
+        function setupScrollReveal() {
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => obs.observe(el));
+        }
+
+        function addToCart(id) {
+            const product = products.find(x => x.id === id);
+            if (product) {
+                cart.push({ ...product });
+                updateCartUI();
+                notify(`"${product.name}" добавлено в корзину`, 'success');
             }
+        }
+
+        function updateCartUI() {
+            document.getElementById('cartCount').innerText = cart.length;
+            document.getElementById('cartTotalSum').innerText = getCartTotal().toLocaleString() + ' ₽';
+        }
+
+        function toggleCart() {
+            const box = document.getElementById('cartBox');
+            box.classList.toggle('open');
+            if (box.classList.contains('open')) renderCartItems();
+        }
+
+        function renderCartItems() {
+            const c = document.getElementById('cartItems');
+            c.innerHTML = '';
+            const g = {};
+            cart.forEach(p => { const k = p.name + '|' + p.price; if (!g[k]) g[k] = { ...p, count: 0 };
+                g[k].count++; });
+            for (const key in g) {
+                const item = g[key];
+                c.innerHTML += `
+                <div class="cart-item">
+                    <div><b>${item.name}</b><br><small>${item.count} шт. × ${item.price.toLocaleString()} ₽</small></div>
+                    <span class="remove-btn" onclick="removeFromCart('${key}')"><i class="fa-solid fa-trash-can"></i></span>
+                </div>`;
+            }
+            if (Object.keys(g).length === 0) c.innerHTML =
+                '<p style="text-align:center;color:var(--text-light);padding:40px;">Корзина пуста</p>';
+        }
+
+        function removeFromCart(key) {
+            const [name, priceStr] = key.split('|');
+            const price = parseInt(priceStr);
+            const idx = cart.findIndex(x => x.name === name && x.price === price);
+            if (idx !== -1) { cart.splice(idx, 1);
+                updateCartUI();
+                renderCartItems();
+                notify('Удалено из корзины'); }
+        }
+
+        function requestOrder() {
+            if (cart.length === 0) return notify('Корзина пуста!', 'error');
+            document.getElementById('cartBox').classList.remove('open');
             if (client) {
                 document.getElementById('userLName').value = client.ln || '';
                 document.getElementById('userFName').value = client.fn || '';
                 document.getElementById('userPhone').value = client.ph || '';
-                document.getElementById('userAddr').value = client.ad || '';
                 document.getElementById('userComment').value = client.cm || '';
             }
             document.getElementById('regModal').classList.add('active');
         }
 
         function completeRegAndOrder() {
-            let d = {
-                ln: document.getElementById('userLName').value,
-                fn: document.getElementById('userFName').value,
-                ph: document.getElementById('userPhone').value,
-                ad: document.getElementById('userAddr').value,
-                cm: document.getElementById('userComment').value
-            };
-            if (!d.ln || !d.fn || !d.ph || !d.ad) return notify("Заполните все обязательные поля!");
-            client = d;
-            localStorage.setItem('elitearch_user', JSON.stringify(client));
+            const ln = document.getElementById('userLName').value.trim();
+            const fn = document.getElementById('userFName').value.trim();
+            const ph = document.getElementById('userPhone').value.trim();
+            const cm = document.getElementById('userComment').value.trim();
+            const agree = document.getElementById('agreeTerms')?.checked;
+
+            if (!ln || !fn || !ph) return notify('Заполните Фамилию, Имя и Телефон!', 'error');
+            if (agree === false) return notify('Необходимо согласие на обработку данных!', 'error');
+            const phoneRegex = /^\+?[\d\s\-()]{10,16}$/;
+            if (!phoneRegex.test(ph.replace(/\s/g, ''))) return notify('Введите корректный телефон!', 'error');
+
+            client = { ln, fn, ph, cm };
+            localStorage.setItem('visit_user', JSON.stringify(client));
             document.getElementById('regModal').classList.remove('active');
+            notify('Регистрация успешна! Оформляем заказ...', 'success');
             proceedToOrder();
         }
 
@@ -1038,107 +1534,132 @@
             currentOrderId = oid;
             const totalSum = getCartTotal();
             const itemCount = cart.length;
-
             let groups = {};
             let imageUrls = [];
             cart.forEach(p => {
                 groups[p.name] = (groups[p.name] || 0) + 1;
-                if (p.img && !imageUrls.includes(p.img)) {
-                    imageUrls.push(p.img);
-                }
+                if (p.img && !imageUrls.includes(p.img)) imageUrls.push(window.location.origin + '/' + p.img);
             });
             let itemsList = Object.entries(groups).map(([n, c]) => `${n}: ${c}шт`).join(', ');
-
-            const rawData = {
-                n: client.ln + ' ' + client.fn,
-                p: client.ph,
-                a: client.ad,
-                cm: client.cm || '',
-                i: itemsList,
-                s: totalSum,
-                c: itemCount
-            };
+            let bookingInfo = '';
+            const savedBooking = localStorage.getItem('visit_booking');
+            if (savedBooking) {
+                const b = JSON.parse(savedBooking);
+                bookingInfo = b.bookingInfo || '';
+            }
+            const modeLabel = currentMode === 'immediate' ? 'Я в ресторане' : currentMode === 'booking' ?
+                'Бронирование' : 'Меню';
+            const rawData = { n: client.ln + ' ' + client.fn, p: client.ph, cm: client.cm || '', i: itemsList, s: totalSum,
+                c: itemCount, m: modeLabel, b: bookingInfo };
 
             DB.saveOrder(oid, {
                 clientName: client.ln + ' ' + client.fn,
                 clientPhone: client.ph,
-                clientAddr: client.ad,
                 clientComment: client.cm || '',
                 items: itemsList,
                 totalSum: totalSum,
                 itemCount: itemCount,
                 imageUrls: imageUrls,
                 cartSnapshot: [...cart],
+                mode: modeLabel,
+                bookingInfo: bookingInfo,
                 raw: rawData
             });
-
-            localStorage.setItem('elitearch_last_order', oid);
+            localStorage.setItem('visit_last_order', oid);
 
             document.getElementById('waitBox').className = '';
             document.getElementById('successBox').className = 'hidden';
             document.getElementById('rejectedBox').className = 'hidden';
             document.getElementById('successText').className = '';
             document.getElementById('rejectText').className = '';
-
-            document.getElementById('cartBox').classList.remove('open');
             document.getElementById('statusModal').classList.add('active');
 
-            const es = new EventSource(`https://ntfy.sh/elitearch_order_${oid}/sse`);
+            const es = new EventSource(`https://ntfy.sh/dolwall_order_${oid}/sse`);
             activeEventSource = es;
-
             es.onmessage = (e) => {
                 const data = JSON.parse(e.data);
+                const waitBox = document.getElementById('waitBox');
                 if (data.message === 'approved') {
-                    const waitBox = document.getElementById('waitBox');
                     waitBox.classList.add('anim-hide');
                     DB.updateStatus(oid, 'approved');
                     setTimeout(() => {
                         waitBox.classList.add('hidden');
-                        const successBox = document.getElementById('successBox');
-                        successBox.classList.remove('hidden');
-                        successBox.classList.add('anim-show');
+                        const sb = document.getElementById('successBox');
+                        sb.classList.remove('hidden');
+                        sb.classList.add('anim-show');
                         document.getElementById('successText').classList.add('anim-text');
                         cart = [];
                         updateCartUI();
+                        localStorage.removeItem('visit_booking');
                         es.close();
                     }, 500);
                 } else if (data.message === 'rejected') {
-                    const waitBox = document.getElementById('waitBox');
                     waitBox.classList.add('anim-hide');
                     DB.updateStatus(oid, 'rejected');
                     setTimeout(() => {
                         waitBox.classList.add('hidden');
-                        const rejectedBox = document.getElementById('rejectedBox');
-                        rejectedBox.classList.remove('hidden');
-                        rejectedBox.classList.add('anim-show');
+                        const rb = document.getElementById('rejectedBox');
+                        rb.classList.remove('hidden');
+                        rb.classList.add('anim-show');
                         document.getElementById('rejectText').classList.add('anim-text');
                         es.close();
                     }, 500);
                 }
             };
 
-            const title = encodeURIComponent(`💻 ЗАКАЗ #${oid}`);
+            const title = encodeURIComponent(`🍽️ ЗАКАЗ #${oid}`);
             const body = encodeURIComponent(
-                `👤 ${client.ln} ${client.fn}\n📞 ${client.ph}\n📍 ${client.ad}\n💬 ${client.cm || 'нет'}\n🛒 ${itemsList}\n💰 ${totalSum}₽`);
-            const orderDataEncoded = encodeURIComponent(JSON.stringify(rawData));
+                `👤 ${client.ln} ${client.fn}\n📞 ${client.ph}\n🎯 ${modeLabel}\n📅 ${bookingInfo}\n🛒 ${itemsList}\n💰 ${totalSum}₽`
+                );
             const call = encodeURIComponent(
-                `${window.location.origin}${window.location.pathname}?manage=${oid}&data=${orderDataEncoded}`);
-
+                `${window.location.origin}${window.location.pathname}?manage=${oid}&data=${encodeURIComponent(JSON.stringify(rawData))}`
+                );
             await fetch(`${BARK_API_URL}/${BARK_DEVICE_KEY}/${title}/${body}?url=${call}`, { mode: 'no-cors' });
             await sendToTelegram(oid, {
                 clientName: client.ln + ' ' + client.fn,
                 clientPhone: client.ph,
-                clientAddr: client.ad,
                 clientComment: client.cm || '',
                 itemsList: itemsList,
                 totalSum: totalSum,
                 itemCount: itemCount,
                 imageUrls: imageUrls,
+                mode: modeLabel,
+                bookingInfo: bookingInfo,
                 raw: rawData
             });
         }
 
-        // ==================== ПАНЕЛЬ МЕНЕДЖЕРА ====================
+        async function checkPendingOrderStatus() {
+            const lastId = localStorage.getItem('visit_last_order');
+            if (!lastId) return;
+            const savedStatus = DB.getOrderStatus(lastId);
+            if (savedStatus === 'pending') {
+                try {
+                    const resp = await fetch(`https://ntfy.sh/dolwall_order_${lastId}/json?poll=1`);
+                    const msgs = await resp.json();
+                    if (msgs && msgs.length > 0) {
+                        const lastMsg = msgs[msgs.length - 1];
+                        if (lastMsg.message === 'approved') {
+                            DB.updateStatus(lastId, 'approved');
+                            notify('🎉 Ваш заказ #' + lastId + ' одобрен!', 'success');
+                            localStorage.removeItem('visit_last_order');
+                        } else if (lastMsg.message === 'rejected') {
+                            DB.updateStatus(lastId, 'rejected');
+                            notify('😔 Заказ #' + lastId + ' отклонён.', 'error');
+                            localStorage.removeItem('visit_last_order');
+                        }
+                    }
+                } catch (e) { console.log('Не удалось проверить статус через ntfy.sh'); }
+            } else if (savedStatus === 'approved') {
+                notify('🎉 Заказ #' + lastId + ' уже одобрен!', 'success');
+                localStorage.removeItem('visit_last_order');
+            } else if (savedStatus === 'rejected') {
+                notify('😔 Заказ #' + lastId + ' был отклонён.', 'error');
+                localStorage.removeItem('visit_last_order');
+            }
+        }
+
+        // ==================== MANAGER PANEL ====================
         function showManagerPanel(oid, encoded) {
             let det = JSON.parse(decodeURIComponent(encoded));
             let items = det.i.split(', ').map(s => {
@@ -1146,176 +1667,58 @@
                 let prod = products.find(p => p.name === name);
                 return { name, qty: s.split(': ')[1], img: prod ? prod.img : '' };
             });
-
             const m = document.createElement('div');
             m.id = "mgrPanelOverlay";
             m.style.cssText =
-                'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.96); backdrop-filter:blur(30px); z-index:20000; display:flex; justify-content:center; align-items:center; transition:opacity 0.6s ease;';
+                'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);backdrop-filter:blur(30px);z-index:20000;display:flex;justify-content:center;align-items:center;transition:opacity 0.6s;';
             m.innerHTML = `
-                <div id="mgrPanelInner" style="background:#0c0c0c; color:#fff; border-radius:50px; width:92%; max-width:550px; padding:40px; border:1px solid #6366f1; text-align:center; transition:all 0.5s;">
-                    <h2 style="color:#6366f1; letter-spacing:2px;">ЗАКАЗ #${oid}</h2>
-                    <div style="background:#111; padding:20px; border-radius:25px; margin:20px 0; text-align:left; font-size:0.9rem;">
-                        <p>👤 <b>${det.n}</b></p><p>📞 ${det.p}</p><p>📍 ${det.a}</p><p>💬 ${det.cm || '—'}</p>
-                    </div>
-                    <div style="max-height:200px; overflow-y:auto; margin-bottom:20px;">
-                        ${items.map(it => `
-                            <div style="display:flex; align-items:center; gap:15px; background:#181818; padding:10px; border-radius:15px; margin-bottom:10px; text-align:left;">
-                                <div style="width:50px; height:50px; border-radius:10px; background-image:url('${it.img}'); background-size:cover; background-position:center;"></div>
-                                <div><b>${it.name}</b><br><small>${it.qty}</small></div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <h3 style="margin-bottom:30px; font-size:1.8rem;">${det.s.toLocaleString()} ₽</h3>
-                    <div style="display:flex; gap:15px;">
-                        <button onclick="mgrAction('${oid}', 'approved')" style="flex:1; padding:18px; border-radius:25px; background:#6366f1; border:none; font-weight:900; cursor:pointer; color:#fff;">ОДОБРИТЬ</button>
-                        <button onclick="mgrAction('${oid}', 'rejected')" style="flex:1; padding:18px; border-radius:25px; background:transparent; border:2px solid #ff4757; color:#ff4757; cursor:pointer;">ОТКЛОНИТЬ</button>
-                    </div>
-                </div>`;
+            <div id="mgrPanelInner" style="background:#0f172a;color:#fff;border-radius:40px;width:92%;max-width:560px;padding:40px;border:1px solid var(--primary-light);text-align:center;transition:all 0.5s;box-shadow:0 30px 80px rgba(0,0,0,0.5);">
+                <h2 style="color:#38bdf8;font-family:'Playfair Display',serif;">ЗАКАЗ #${oid}</h2>
+                <div style="background:#1e293b;padding:20px;border-radius:20px;margin:20px 0;text-align:left;font-size:0.9rem;">
+                    <p>👤 <b>${det.n}</b></p><p>📞 ${det.p}</p><p>💬 ${det.cm||'—'}</p>
+                    <p>🎯 <b>${det.m||'Меню'}</b></p>${det.b?`<p>📅 ${det.b}</p>`:''}
+                </div>
+                <div style="max-height:180px;overflow-y:auto;margin-bottom:20px;">
+                    ${items.map(it=>`
+                        <div style="display:flex;align-items:center;gap:12px;background:#1e293b;padding:10px;border-radius:14px;margin-bottom:8px;text-align:left;">
+                            <div style="width:45px;height:45px;border-radius:10px;background-image:url('${it.img}');background-size:cover;background-position:center;flex-shrink:0;"></div>
+                            <div><b>${it.name}</b><br><small>${it.qty}</small></div>
+                        </div>`).join('')}
+                </div>
+                <h3 style="margin-bottom:25px;font-size:1.6rem;color:#7dd3fc;">${det.s.toLocaleString()} ₽</h3>
+                <div style="display:flex;gap:15px;">
+                    <button onclick="mgrAction('${oid}','approved')" style="flex:1;padding:16px;border-radius:25px;background:#10b981;border:none;font-weight:700;cursor:pointer;color:#fff;font-size:1rem;">ОДОБРИТЬ</button>
+                    <button onclick="mgrAction('${oid}','rejected')" style="flex:1;padding:16px;border-radius:25px;background:transparent;border:2px solid #ef4444;color:#ef4444;cursor:pointer;font-weight:700;">ОТКЛОНИТЬ</button>
+                </div>
+            </div>`;
             document.body.appendChild(m);
         }
 
         window.mgrAction = (id, st) => {
-            const innerPanel = document.getElementById('mgrPanelInner');
+            const inner = document.getElementById('mgrPanelInner');
             if (st === 'approved') {
-                innerPanel.innerHTML = `
-                    <i class="fa-solid fa-check-circle" style="font-size:6rem; color:#10b981; animation:scaleUpFade 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;"></i>
-                    <h2 class="anim-text" style="margin-top:20px; color:#10b981;">УСПЕШНО ОДОБРЕНО</h2>
-                    <p style="margin-top:10px; color:#aaa;">Система уведомляет клиента...</p>
-                `;
+                inner.innerHTML = `
+                <i class="fa-solid fa-check-circle" style="font-size:5rem;color:#10b981;animation:scaleUpFade 0.5s forwards;"></i>
+                <h2 class="anim-text" style="color:#10b981;margin-top:15px;">УСПЕШНО ОДОБРЕНО</h2>
+                <p style="color:#94a3b8;">Клиент получит уведомление...</p>`;
             } else {
-                innerPanel.innerHTML = `
-                    <i class="fa-solid fa-times-circle" style="font-size:6rem; color:#e74c3c; animation:scaleUpFade 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;"></i>
-                    <h2 class="anim-text" style="margin-top:20px; color:#e74c3c;">ЗАКАЗ ОТКЛОНЕН</h2>
-                    <p style="margin-top:10px; color:#aaa;">Система закрывает сделку...</p>
-                `;
+                inner.innerHTML = `
+                <i class="fa-solid fa-times-circle" style="font-size:5rem;color:#ef4444;animation:scaleUpFade 0.5s forwards;"></i>
+                <h2 class="anim-text" style="color:#ef4444;margin-top:15px;">ЗАКАЗ ОТКЛОНЕН</h2>
+                <p style="color:#94a3b8;">Сделка закрыта...</p>`;
             }
             DB.updateStatus(id, st);
-            fetch(`https://ntfy.sh/elitearch_order_${id}`, { method: 'POST', body: st }).then(() => {
+            fetch(`https://ntfy.sh/dolwall_order_${id}`, { method: 'POST', body: st }).then(() => {
                 setTimeout(() => {
                     const overlay = document.getElementById('mgrPanelOverlay');
                     overlay.style.opacity = '0';
-                    setTimeout(() => {
-                        location.href = location.origin + location.pathname;
-                    }, 600);
+                    setTimeout(() => { location.href = location.origin + location.pathname; },
+                    600);
                 }, 1800);
             });
         };
 
-        // ==================== ПРОВЕРКА СТАТУСА ЗАКАЗА ====================
-        async function checkPendingOrderStatus() {
-            const lastOrderId = localStorage.getItem('elitearch_last_order');
-            if (!lastOrderId) return;
-            const savedStatus = DB.getOrderStatus(lastOrderId);
-            if (savedStatus === 'pending') {
-                try {
-                    const resp = await fetch(`https://ntfy.sh/elitearch_order_${lastOrderId}/json?poll=1`);
-                    const messages = await resp.json();
-                    if (messages && messages.length > 0) {
-                        const lastMsg = messages[messages.length - 1];
-                        if (lastMsg.message === 'approved') {
-                            DB.updateStatus(lastOrderId, 'approved');
-                            notify('🎉 Ваш заказ #' + lastOrderId + ' был одобрен! Обновите страницу.');
-                            localStorage.removeItem('elitearch_last_order');
-                        } else if (lastMsg.message === 'rejected') {
-                            DB.updateStatus(lastOrderId, 'rejected');
-                            notify('😔 Заказ #' + lastOrderId + ' был отклонён.');
-                            localStorage.removeItem('elitearch_last_order');
-                        }
-                    }
-                } catch (e) {
-                    console.log('Не удалось проверить статус заказа через ntfy.sh');
-                }
-            } else if (savedStatus === 'approved') {
-                notify('🎉 Ваш заказ #' + lastOrderId + ' уже одобрен!');
-                localStorage.removeItem('elitearch_last_order');
-            } else if (savedStatus === 'rejected') {
-                notify('😔 Заказ #' + lastOrderId + ' был отклонён.');
-                localStorage.removeItem('elitearch_last_order');
-            }
-        }
-
-        // ==================== UI ФУНКЦИИ ====================
-        function startSystem() {
-            document.getElementById('introScreen').classList.add('fade-out');
-            setTimeout(() => {
-                document.getElementById('introScreen').style.display = 'none';
-                document.getElementById('mainUI').classList.remove('hidden');
-                document.body.classList.remove('no-scroll');
-                renderCatalog();
-                checkPendingOrderStatus();
-            }, 1200);
-        }
-
-        function renderCatalog() {
-            let g = document.getElementById('catalogGrid');
-            g.innerHTML = '';
-            products.forEach((p, index) => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.style.animationDelay = `${index * 0.04}s`;
-                card.innerHTML = `
-                    <div class="product-price">${p.price.toLocaleString()}₽</div>
-                    <div class="product-img" style="background-image:url('${p.img}')"></div>
-                    <div class="product-body">
-                        <h3>${p.name}</h3>
-                        <p>${p.type}</p>
-                        <button class="product-btn" onclick="addToCart(${p.id})">Добавить в корзину</button>
-                    </div>`;
-                g.appendChild(card);
-            });
-        }
-
-        function addToCart(id) {
-            const product = products.find(x => x.id === id);
-            if (product) {
-                cart.push({ ...product });
-                updateCartUI();
-                notify("Добавлено в корзину");
-            }
-        }
-
-        function updateCartUI() {
-            document.getElementById('cartCount').innerText = cart.length;
-            document.getElementById('cartTotalSum').innerText = getCartTotal().toLocaleString() + '₽';
-        }
-
-        function toggleCart() {
-            document.getElementById('cartBox').classList.toggle('open');
-            renderCartItems();
-        }
-
-        function renderCartItems() {
-            let c = document.getElementById('cartItems');
-            c.innerHTML = '';
-            let g = {};
-            cart.forEach(p => {
-                const key = p.name + '|' + p.price;
-                if (!g[key]) g[key] = { ...p, count: 0 };
-                g[key].count++;
-            });
-            for (let key in g) {
-                const item = g[key];
-                c.innerHTML += `
-                <div class="cart-item">
-                    <div><b>${item.name}</b><br><small>${item.count} шт. × ${item.price.toLocaleString()}₽</small></div>
-                    <i class="fa-solid fa-trash" style="color:#ff4757; cursor:pointer; transition:0.3s;" onclick="removeFromCart('${key}')"></i>
-                </div>`;
-            }
-        }
-
-        function removeFromCart(key) {
-            const [name, priceStr] = key.split('|');
-            const price = parseInt(priceStr);
-            const index = cart.findIndex(x => x.name === name && x.price === price);
-            if (index !== -1) {
-                cart.splice(index, 1);
-                updateCartUI();
-                renderCartItems();
-                notify("Удалено");
-            }
-        }
-
-        // ==================== МОДАЛЬНЫЕ ОКНА ====================
+        // ==================== MODALS ====================
         function openDevModal() { document.getElementById('devModal').classList.add('active'); }
 
         function closeDevModal() { document.getElementById('devModal').classList.remove('active'); }
@@ -1324,13 +1727,14 @@
 
         function closeSupportModal() { document.getElementById('supportModal').classList.remove('active'); }
 
-        function openCompanyModal() { document.getElementById('companyModal').classList.add('active'); }
+        function openAboutModal() { document.getElementById('aboutModal').classList.add('active'); }
 
-        function closeCompanyModal() { document.getElementById('companyModal').classList.remove('active'); }
+        function closeAboutModal() { document.getElementById('aboutModal').classList.remove('active'); }
 
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('modal-overlay')) {
                 e.target.classList.remove('active');
+                if (e.target.id === 'bookingModal') currentMode = 'menu';
             }
             if (e.target.id === 'statusModal' && (document.getElementById('successBox').classList.contains(
                     'anim-show') || document.getElementById('rejectedBox').classList.contains('anim-show'))) {
@@ -1344,13 +1748,40 @@
             }
         });
 
-        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        // ==================== HEADER SCROLL EFFECT ====================
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (header) {
+                if (window.scrollY > 50) header.classList.add('scrolled');
+                else header.classList.remove('scrolled');
+            }
+        });
+
+        // ==================== INTRO PARTICLES ====================
+        (function createParticles() {
+            const container = document.getElementById('introParticles');
+            if (!container) return;
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'intro-particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDuration = (Math.random() * 8 + 6) + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                p.style.width = (Math.random() * 5 + 2) + 'px';
+                p.style.height = p.style.width;
+                container.appendChild(p);
+            }
+        })();
+
+        // ==================== INIT ====================
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('manage')) {
             document.body.classList.remove('no-scroll');
             document.getElementById('introScreen').style.display = 'none';
             document.getElementById('mainUI').classList.remove('hidden');
             renderCatalog();
+            setupScrollReveal();
             showManagerPanel(urlParams.get('manage'), urlParams.get('data'));
         }
     </script>
